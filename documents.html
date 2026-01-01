@@ -2,301 +2,378 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Documents | Learn with GPT</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
+<title>SMART HUB</title>
 <style>
-body{ margin:0; font-family:Arial,sans-serif; background:#f4f6f8; }
-/* Header */
-.header{
-  background:#0B3D91;
-  color:white;
-  padding:15px 20px 30px;
-  border-bottom-left-radius:22px;
-  border-bottom-right-radius:22px;
-  position:relative;
-  text-align:center;
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #e6f0ff; /* Light Blue */
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    padding-top: 50px;
 }
-.hamburger{ position:absolute; left:20px; top:18px; font-size:22px; cursor:pointer; }
-.logout{ position:absolute; right:20px; top:18px; font-size:20px; cursor:pointer; }
-.title{ font-size:20px; font-weight:bold; }
-.welcome{ font-size:14px; margin-top:5px; opacity:0.9; }
-/* Sidebar */
-.menu{
-  position:fixed; top:0; left:0;
-  width:260px; height:100%;
-  background:white;
-  box-shadow:2px 0 6px rgba(0,0,0,0.2);
-  transform:translateX(-100%);
-  transition:0.3s;
-  z-index:1000;
+.container {
+    background: #001f3f; /* Navy Blue */
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    width: 450px;
+    max-width: 90%;
+    color: #fff;
+    text-align: center;
 }
-.menu.open{ transform:translateX(0); }
-.menu-top{ text-align:center; padding:20px; border-bottom:1px solid #e3ebf5; }
-.menu-logo{ width:90px; border-radius:50%; }
-.menu a{
-  display:block; padding:15px 20px;
-  text-decoration:none; color:#333;
+h2 {
+    margin-bottom: 20px;
+    color: #b3d1ff; /* Light Blue */
 }
-.menu a i{ margin-right:10px; color:#0B3D91; }
-.menu a:hover{ background:#eef3fa; }
-/* Content */
-.content{ padding:20px; }
-/* Grid */
-.grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
-  gap:15px;
+ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
 }
-/* Cards */
-.card{
-  background:white;
-  padding:20px;
-  border-radius:14px;
-  text-align:center;
-  cursor:pointer;
-  box-shadow:0 2px 5px rgba(0,0,0,0.08);
-  transition:0.2s;
+li {
+    margin: 10px 0;
 }
-.card:hover{ background:#eef3fa; }
-.card i{ font-size:30px; color:#0B3D91; margin-bottom:10px; }
-.card span{ display:block; font-weight:500; }
-/* Back */
-.back{
-  margin-bottom:15px;
-  cursor:pointer;
-  color:#0B3D91;
-  font-weight:bold;
+a, .card {
+    display: block;
+    text-decoration: none;
+    color: #001f3f;
+    background: #b3d1ff;
+    padding: 12px 15px;
+    border-radius: 10px;
+    transition: 0.3s;
+    font-weight: bold;
+    cursor: pointer;
 }
-/* Document Modal */
-.doc-modal{
-  display:none;
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,0.8);
-  z-index:2000;
-  justify-content:center;
-  align-items:center;
+a:hover, .card:hover {
+    background: #001f3f;
+    color: #b3d1ff;
 }
-.doc-box{
-  width:90%;
-  max-width:900px;
-  height:90%;
-  background:white;
-  border-radius:10px;
-  position:relative;
-  display:flex;
-  flex-direction:column;
+.hidden { display: none; }
+.back-btn {
+    display: inline-block;
+    margin-bottom: 20px;
+    padding: 8px 15px;
+    border-radius: 8px;
+    background: #b3d1ff;
+    color: #001f3f;
+    cursor: pointer;
+    font-weight: bold;
+    transition:0.3s;
+    text-align: left;
 }
-.doc-box iframe{
-  flex:1;
-  width:100%;
-  border:none;
-  border-radius:10px;
+.back-btn:hover {
+    background: #001f3f;
+    color: #b3d1ff;
 }
-.doc-header{
-  padding:10px;
-  background:#0B3D91;
-  color:white;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  border-top-left-radius:10px;
-  border-top-right-radius:10px;
+.card-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
 }
-.close-doc{
-  cursor:pointer;
-  font-size:20px;
+/* Modal styles */
+.modal {
+    position: fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background: rgba(0,0,0,0.95);
+    display:none;
+    justify-content:center;
+    align-items:center;
+    z-index:1000;
+    flex-direction:column;
 }
-.download-btn{
-  background:#1976d2;
-  padding:6px 12px;
-  border-radius:6px;
-  color:white;
-  text-decoration:none;
-  font-size:14px;
+.modal iframe, .modal video {
+    width: 100%;
+    border: none;
+    border-radius: 5px;
 }
-/* Search input */
-#globalSearch{
-  width:100%;
-  padding:10px 15px;
-  margin-bottom:15px;
-  border-radius:8px;
-  border:1px solid #ccc;
-  font-size:16px;
+.modal iframe.doc-frame {
+    height: 100%;
+}
+.modal video {
+    height: 60%; /* Videos smaller initially */
+}
+.modal-controls {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    display: flex;
+    gap: 10px;
+    z-index: 1001;
+}
+.modal-controls button {
+    padding: 8px 15px;
+    border-radius:8px;
+    border:none;
+    font-weight:bold;
+    cursor:pointer;
+    background:#b3d1ff;
+    color:#001f3f;
+    transition:0.3s;
+}
+.modal-controls button:hover {
+    background:#001f3f;
+    color:#b3d1ff;
 }
 </style>
 </head>
 <body>
 
-<!-- Sidebar -->
-<div id="sideMenu" class="menu">
-  <div class="menu-top">
-    <img src="nqlogo.jpg" class="menu-logo">
-  </div>
-  <a href="dashboard.html"><i class="fa-solid fa-house"></i>Dashboard</a>
-  <a href="about.html"><i class="fa-solid fa-phone"></i>Contact Us</a>
-  <a href="motivation.html"><i class="fa-solid fa-lightbulb"></i>Motivation</a>
-  <a href="calculator.html"><i class="fa-solid fa-calculator"></i>Calculator</a>
+<div class="container">
+
+<!-- PAGE 1: Term -->
+<div id="pageTerm">
+    <div class="back-btn" onclick="goToDashboard()">⬅ Back</div>
+    <h2>Select Term</h2>
+    <ul id="termList"></ul>
 </div>
 
-<!-- Header -->
-<div class="header">
-  <div class="hamburger"><i class="fa-solid fa-bars"></i></div>
-  <div class="logout"><i class="fa-solid fa-power-off"></i></div>
-  <div class="title">Learn with GPT</div>
-  <div class="welcome">Welcome, <strong id="username"></strong></div>
+<!-- PAGE 2: Course -->
+<div id="pageCourse" class="hidden">
+    <div class="back-btn" onclick="goBack('term')">⬅ Back</div>
+    <h2>Select Course</h2>
+    <ul id="courseList"></ul>
 </div>
 
-<div class="content">
+<!-- PAGE 3: Topics / Files -->
+<div id="pageFiles" class="hidden">
+    <div class="back-btn" onclick="goBack('course')">⬅ Back</div>
+    <h2>Topics / Files</h2>
+    <div id="filesList" class="card-container"></div>
+</div>
 
-  <!-- Global Search -->
-  <input type="text" id="globalSearch" placeholder="Search all documents..." oninput="filterAllDocs()">
+</div>
 
-  <!-- COURSES -->
-  <div id="coursesView">
-    <div class="grid">
-      <div class="card" onclick="openCourse('MA110')"><i class="fa-solid fa-square-root-variable"></i><span>MA110 - Mathematics</span></div>
-      <div class="card" onclick="openCourse('CH110')"><i class="fa-solid fa-flask"></i><span>CH110 - Chemistry</span></div>
-      <div class="card" onclick="openCourse('PH110')"><i class="fa-solid fa-atom"></i><span>PH110 - Physics</span></div>
-      <div class="card" onclick="openCourse('BI110')"><i class="fa-solid fa-dna"></i><span>BI110 - Biology</span></div>
-      <div class="card" onclick="openCourse('CS110')"><i class="fa-solid fa-laptop-code"></i><span>CS110 - Computer Science</span></div>
-      <div class="card" onclick="openCourse('LA111')"><i class="fa-solid fa-book"></i><span>LA111 - Language</span></div>
+<!-- Modal -->
+<div id="modal" class="modal">
+    <div class="modal-controls">
+        <button id="downloadBtn">Download 📥</button>
+        <button onclick="closeModal()">Close ✖</button>
     </div>
-  </div>
-
-  <!-- DOCUMENTS PER COURSE -->
-  <div id="topicsView" style="display:none;">
-    <div class="back" onclick="goBack()">← Back to Courses</div>
-    <h3 id="courseTitle"></h3>
-    <div id="topicsGrid" class="grid"></div>
-  </div>
-
-</div>
-
-<!-- Document Modal -->
-<div id="docModal" class="doc-modal">
-  <div class="doc-box">
-    <div class="doc-header">
-      <span id="docTitle"></span>
-      <div>
-        <a id="downloadLink" class="download-btn" href="#" target="_blank">Download</a>
-        <span class="close-doc" onclick="closeDoc()">✕</span>
-      </div>
-    </div>
-    <iframe id="docFrame"></iframe>
-  </div>
+    <iframe id="modalFrame" class="hidden doc-frame" allowfullscreen></iframe>
+    <iframe id="modalVideo" class="hidden" allowfullscreen></iframe>
 </div>
 
 <script>
-const courseDocs={
-  MA110:[
-    {title:"Algebra Notes", link:"https://drive.google.com/file/d/FILE_ID_1/preview", download:"https://drive.google.com/uc?export=download&id=FILE_ID_1"},
-    {title:"Calculus Notes", link:"https://drive.google.com/file/d/FILE_ID_2/preview", download:"https://drive.google.com/uc?export=download&id=FILE_ID_2"}
-  ],
-  CH110:[
-    {title:"Atomic Structure Notes", link:"https://drive.google.com/file/d/FILE_ID_3/preview", download:"https://drive.google.com/uc?export=download&id=FILE_ID_3"},
-    {title:"Chemical Bonding Notes", link:"https://drive.google.com/file/d/FILE_ID_4/preview", download:"https://drive.google.com/uc?export=download&id=FILE_ID_4"}
-  ],
-  PH110:[
-    {title:"Motion Notes", link:"https://drive.google.com/file/d/FILE_ID_5/preview", download:"https://drive.google.com/uc?export=download&id=FILE_ID_5"},
-    {title:"Work & Energy Notes", link:"https://drive.google.com/file/d/FILE_ID_6/preview", download:"https://drive.google.com/uc?export=download&id=FILE_ID_6"}
-  ],
-  BI110:[
-    {title:"Cell Structure Notes", link:"https://drive.google.com/file/d/FILE_ID_7/preview", download:"https://drive.google.com/uc?export=download&id=FILE_ID_7"},
-    {title:"Genetics Notes", link:"https://drive.google.com/file/d/FILE_ID_8/preview", download:"https://drive.google.com/uc?export=download&id=FILE_ID_8"}
-  ],
-  CS110:[
-    {title:"Intro to Programming", link:"https://drive.google.com/file/d/FILE_ID_9/preview", download:"https://drive.google.com/uc?export=download&id=FILE_ID_9"},
-    {title:"Data Structures Notes", link:"https://drive.google.com/file/d/FILE_ID_10/preview", download:"https://drive.google.com/uc?export=download&id=FILE_ID_10"}
-  ],
-  LA111:[
-    {title:"Grammar Notes", link:"https://drive.google.com/file/d/FILE_ID_11/preview", download:"https://drive.google.com/uc?export=download&id=FILE_ID_11"},
-    {title:"Composition Notes", link:"https://drive.google.com/file/d/FILE_ID_12/preview", download:"https://drive.google.com/uc?export=download&id=FILE_ID_12"}
-  ]
+// Redirect to dashboard
+function goToDashboard(){
+    window.location.href = 'dashboard.html'; // Change if your dashboard URL is different
+}
+
+const docsc = {
+    "Term 1": {
+        "⚙️PH110": [{name:"🟣SERWAY- Physics Text Book",link:"https://drive.google.com/file/d/1GTIjf-58ri_o9kOmZyvysxvRqumU1x74/view", type:"doc"},
+            {name:"⚫CHAPTER 1-UNITS AND MEASUREMENTS", link:"https://drive.google.com/file/d/1XF4TW5UFIdvMQTatBDI2xU0n8z2fxqQs/view", type:"doc"},
+         {name:"▶️DIMENSIONAL ANALYSIS", link:"https://drive.google.com/file/d/1q6P6VOqNSvOParxbo6UO7-hbhely-qgW/preview", type:"video"},
+        {name:"🌱DIMENSIONAL ANALYSIS", link:"https://drive.google.com/file/d/1y6b-GNP3vrAtoWkDD_4291tyVNRGEerQ/view", type:"doc"},
+        {name:"⚫CHAPTER 2-SCALAR AND VECTOR QUANTITIES", link:"https://drive.google.com/file/d/11Te0cqF16-sn13RwA4mW5JU-Ma-FgWx2/view", type:"doc"},
+        {name:"🌱Scalar and Vector part 1(Quantum)", link:"https://drive.google.com/file/d/1hSXElich_97oHco4fzNRXJrflAC2-pUL/view", type:"doc"},
+        {name:"🌱Scalar And Vector Part 3(Quantum)", link:"https://drive.google.com/file/d/1EzpcAfpRHTXP_cEk6DUkI7i1bYacqsTd/view", type:"doc"},
+        {name:"🌱CHAPTER 3-KINEMATICS", link:"https://drive.google.com/file/d/1dELWrSaLKoN3oQqrYT60uyi26hQshBQb/view", type:"doc"},
+        {name:"⚫KInematics Part 1", link:"https://drive.google.com/file/d/1wvcQ-7dUeZtviRLRCF_xLRIGMrk0m9R2/view", type:"doc"},
+         {name:"🌱KInematics Part 2", link:"https://drive.google.com/file/d/17VU7FXbOOBcwzPkE9EQh6tG6vY5ZCln0/view", type:"doc"},
+         {name:"🌱KInematics Solved Examples", link:"https://drive.google.com/file/d/19qREykuSTiL6quPBU8sAcJT2_FLaOe_h/view", type:"doc"},
+         {name:"🌱KInematics Part 4", link:"https://drive.google.com/file/d/1Pg9kzaoUo_eJiOdqCwsjYTqq2vWSqXYI/view", type:"doc"},
+        {name:"⚫PROJECTILE P1", link:"https://drive.google.com/file/d/1j8PHZ7mg0SY6PEMjuOokxXsLtJ87thUS/view", type:"doc"},
+        {name:"🌱2020 TEST One", link:"https://drive.google.com/file/d/1nsPZOQBdaPAwUcm_-iDPcwV69hGPT4jF/view", type:"doc"},
+        {name:"🌱2020 differed Test one", link:"https://drive.google.com/file/d/1lJqc6fo5bhbL0OlVWzSPV5uM8xdYxvRC/view", type:"doc"},
+       {name:"🌱2023 TEST ONE", link:"https://drive.google.com/file/d/10gmUMZnE_1-SijwwV0ul5Exc1ngcqthY/view", type:"doc"},
+      {name:"🌱2014 TEST ONE", link:"https://drive.google.com/file/d/1286ij6W1nTt7buiYKrM7t6hoJGZig3L-/view", type:"doc"},
+       {name:"🌱Test Solutions", link:"https://drive.google.com/file/d/1j8PHZ7mg0SY6PEMjuOokxXsLtJ87thUS/view", type:"doc"},
+       {name:"🌱PH110 TEST ONE", link:"https://drive.google.com/file/d/1uRdxkTCOjYGRr7Flz0V6ZOOnizEEWx8b/view", type:"doc"}],
+        "⚗️CH110": [{name:"🔵INTRODUCTION TO CHEMISTRY", link:"https://drive.google.com/file/d/15qNHJl1YGfU7LFjVucNCzDsHZpJXBeDW/view", type:"doc"},
+        {name:"🟣CH110 TEXT BOOK-DR.NANJA",link:"https://drive.google.com/file/d/1m05reJBWJj3qohFCDWOcsSmaPb_C89S3/view", type:"doc"},
+       {name:"🌱INTRODUCTION tO Chemistry & Stoichiometry-mazimba", link:"https://drive.google.com/file/d/1tgcyMpE5WnJ2VtS14VRyPkggVOfGbJq6/view", type:"doc"},
+       {name:"🌱Introduction To Chemistry-EME key points", link:"https://drive.google.com/file/d/1w7n4ZmfWlzhCHD1G5bLskYYMxnkuZmUm/view", type:"doc"},
+      {name:"🔵Fundemental Of Chemistry", link:"https://drive.google.com/file/d/1OOyLtDunpB4-1eARiI3F4xXqmRgFPf3M/view", type:"doc"},
+      {name:"🟣MOLE CONCEPT 1", link:"https://drive.google.com/file/d/1ZNzuOvbYNWn83dn3rCtxbuM59SB0BFqM/view", type:"doc"},{name:"🌱Emperical & Molecular Formula", link:"https://drive.google.com/file/d/1Trdy_CC3f3XHqSIpPavWRNmSCT8-Hm4C/view", type:"doc"},
+      {name:"Emperical & Molecular Formula 2", link:"https://drive.google.com/file/d/16x52gbvIfglDGZXBQibn-Nb0mPJ37Ed1/view", type:"doc"},
+       {name:"🌱Stoichiometry Revision Kit", link:"https://drive.google.com/file/d/12KcGID2On8-jDflWG2GOaOAFGJicY9d3/view", type:"doc"},
+        {name:"🌱Combustion Analysis", link:"https://drive.google.com/file/d/11E5k8oiKFd7gCRVX71iK2xP8qfBZtKhj/view", type:"doc"},
+       {name:"🌱Solution to Combustion Analysis", link:"https://drive.google.com/file/d/162oXeM4jWhthlsEqNNMJ8SzesNd-n1tb/view", type:"doc"},{name:"🟣REACTION IN AQUEOUS SOLUTION", link:"", type:"doc"},
+        {name:"🌱Relative Abundence & REDOX Reaction(Acidic & Basic Media", link:"https://drive.google.com/file/d/1sVc6JwBdYlG0oi1xxcTstDEs98FfeRFw/view", type:"doc"},
+        {name:"🌱2021 CH110 Test One",link:"https://drive.google.com/file/d/1umL7Db0-Zinoa10hVw8CGWCzFwbCSP-K/view",type:"doc"},
+      {name:"🌱2023 Test One",link:"https://drive.google.com/file/d/1t9EIFiM28eeQvwqUuIbJh-LlibxR-Fpg/view",type:"doc"}],
+        "🧬BI110": [{name:"⚫LECTURE 1-Introduction To Biology", link:"https://drive.google.com/file/d/1-ThH0uALgejdjw0dcKvXW7qX7Gxa8Wyz/view", type:"doc"},
+      {name:"⚫MICROSCOPY AND STAINING", link:"https://drive.google.com/file/d/1-ThH0uALgejdjw0dcKvXW7qX7Gxa8Wyz/view", type:"doc"},
+        {name:"⚫MENDELIAN GENETICS", link:"https://drive.google.com/file/d/1OBKc-JXWM2DQjXkBWEEu9sXUY0nrsxV8/view", type:"doc"},
+        {name:"🌱TRIAL QUESTIONS", link:"https://drive.google.com/file/d/1VmRucMLsN2VozUHrkS-ZVEV5rACetTWw/view", type:"doc"},
+        {name:"🌱2021 TEST ONE", link:"https://drive.google.com/file/d/15M56VwJZYSlnu-FX49eix6k_V7mgQHrK/view", type:"doc"},
+        {name:"🌱2019 TEST ONE", link:"https://drive.google.com/file/d/1qjL--jyQAfhndXfd0QeY6VeFDQkqr9d-/view", type:"doc"},
+         {name:"🌱2024 TEST ONE", link:"https://drive.google.com/file/d/1R-U8tmuIC3Wwv9BjCC-co2G-uAekQ4Nh/view", type:"doc"}],
+        "🔣MA110": [{name:"⚫Allocation of Topics", link:"https://drive.google.com/file/d/1I3cugPy06HugsvHdOHbLR2KuKEI6qTd2/view", type:"doc"},
+        {name:"🟣NOTES- Mr.Sakala",link:"https://drive.google.com/file/d/1JPI46F0_OaXuOO1S-_JIJi6X9uILWzXk/view", type:"doc"},
+        {name:"🌱De Morgan's Law", link:"https://drive.google.com/file/d/1Ttj5wBsQLRyq4JPYvp0PknmbD7GU_2jc/view", type:"doc"},
+        {name:"🌱Repeating Decimals", link:"https://drive.google.com/file/d/1A97U6vvGgNu-Vld7vpYkBv-JqfJuFNOQ/view", type:"doc"},
+       {name:"▶️COMPLEX NUMBERS-Introductory Video",link:"https://drive.google.com/file/d/1YdOs9NzZcq9EMAoEgl1-XJ3nSzi0XDO6/preview", type:"video"},
+        {name:"⚫Tutorial Sheet", link:"https://drive.google.com/file/d/1d3COeOAV0VHVLW-yvD3KnbM_caKk6dQq/view", type:"doc"},
+        {name:"🌱Tutorial Sheet With Solutions", link:"https://drive.google.com/file/d/1CVVb9pdx9s3LjAWinbIW9MMIiqW-ARz1/view", type:"doc"},
+        {name:"🌱Functions Tutorial Sheet", link:"https://drive.google.com/file/d/1CCPwrbQzajLuLpp8PPXtn6ERImbU3-Bf/view", type:"doc"},
+        {name:"⚫Standard Questions", link:"https://drive.google.com/file/d/1TP_BlghpKeEsgQGHmKhcyY-sZ_bY4P1y/view", type:"doc"},
+        {name:"⚫FUNCTIONS-PART ONE(Quantum)", link:"https://drive.google.com/file/d/1q-rtZ8vlHZJL0LluH1fduGy-kogsjwrP/view?usp=drivesdk", type:"doc"},
+        {name:"🌱FUNCTIONS-PART TWO Solutions (Quantum)", link:"https://drive.google.com/file/d/1y2TsApx7f-v2Gnm_GVjXm4vKo2WEirhU/view", type:"doc"},
+        {name:"🌱FUNCTIONS-QUADRATIC PART THREE (quantum)", link:"https://drive.google.com/file/d/1UFYW-zwxwwP-1RivEQht3juCkVQ2zYpP/view", type:"doc"},
+        {name:"⚫Graphing Polynomial Functions", link:"https://drive.google.com/file/d/1PHAySfn4P-Sxr5eY9iquLHs72f3eVl4Y/view", type:"doc"},
+        {name:"🌱Solutions to Graphing", link:"https://drive.google.com/file/d/1ZRlwOSMWEdXhhZFwOoyOV3GVSctqKAhF/view", type:"doc"},
+       {name:"🌱Solutions to Functions", link:"https://drive.google.com/file/d/1AoFtoWbUEikaiM4MldSgjXPpU88RpRAw/view", type:"doc"},
+       {name:"🌱EVEN, ODD OR NEITHER", link:"https://drive.google.com/file/d/1ngtjaSBOq0UrtHgRRUKXDXYDjTfkcV_k/view", type:"doc"},
+       {name:"🌱HOW TO FIND DOMAIN & RANGE", link:"https://drive.google.com/file/d/1pEPgzCt-aSYFBvUw6S0pSLTCH_lQkU7C/view", type:"doc"},
+       {name:"🌱RELATIONSHIP BETWEEN ROOT & COEFFICIENT OF THE QUADRATIC FUNCTION", link:"https://drive.google.com/file/d/1QBZqyIPQTrtzF41dNCt-_4zw_28GHYcy/view", type:"doc"},
+       {name:"🌱Asymptotes, Square Root And Polynomial Graphs", link:"https://drive.google.com/file/d/1mASIAGwViVfKtt8m0kpT9R_EmgsWzHK_/view", type:"doc"},
+       {name:"🌱2025 Test one ", link:"https://drive.google.com/uc?export=download&id=FILE_ID1", type:"doc"},
+       {name:"🌱2024 Test one", link:"https://drive.google.com/file/d/1aq1Z_gBjKQk5xyYRYzRdXSMvF8EqhMAd/view", type:"doc"},
+       {name:"🌱2023 Test one", link:"https://drive.google.com/file/d/1l9SfkNgYgUgk9-ozJNMfwSoZInM5mlVL/view", type:"doc"},
+       {name:"🌱2022 Test one", link:"https://drive.google.com/uc?export=download&id=FILE_ID1", type:"doc"},
+       {name:"🌱2021 Test one", link:"https://drive.google.com/file/d/1zPu0Y5nxn3LSw7LL4TnSiTyD2I6pZly2/view", type:"doc"},
+       {name:"🌱2020 Test one", link:"https://drive.google.com/uc?export=download&id=FILE_ID1", type:"doc"},
+       {name:"🌱2019 Test one", link:"https://drive.google.com/file/d/1iIY6576nlskSlPOYKURORXI45AcxuO3O/view", type:"doc"},
+       {name:"🌱2018 Test one", link:"https://drive.google.com/file/d/1bs11raGZHPOlG5R2yMVNQqf74BX3pkz1/view", type:"doc"},
+       {name:"🌱2015 Test one", link:"https://drive.google.com/file/d/19HqPzaAhfz2HWFb-6Ey5TRwZtOK5xM6o/view", type:"doc"},
+      {name:"🌱MA110 Test Ones", link:"https://drive.google.com/uc?export=download&id=FILE_ID1", type:"doc"},
+         {name:"🌱TEST ONES SOLUTIONS ", link:"https://drive.google.com/file/d/1s-JBM2hGlP2bhizgFkpw9bp7tr1HwIix/view", type:"doc"},
+{name:"🌱MASA 2025 COMPILED ANSWERS", link:"https://drive.google.com/file/d/1Q6MoTHejc-SIoGQV1Q1zowMOIiuQdtcJ/view", type:"doc"}],
+        "📠LA111": [{name:"🔵LA111 LECTURER'S NOTES-MR S. KAVWAYA",link:"https://drive.google.com/file/d/1snNp3XLfbS5p6g8V8-oY6WIBNAx5SwOX/view", type:"doc"},
+     {name:"🌱 BARRIERS TO NON-VERBAL COMMUNICATION",link:"https://drive.google.com/file/d/1YQRqU1sbscKH-XBTCzv1J8GU_p27Uw3s/view", type:"doc"},
+{name:"🌱2023 Test one LA111",link:"https://drive.google.com/file/d/1-_HksDLtzUbpMah-nyZfEuXJgzXL8LbY/view", type:"doc"},{name:"🌱2021 LA111 Test one",link:"https://drive.google.com/file/d/1TFw3eJhr9lOIA1vHK7uCi-uCBWgwVMHP/view",type:"doc"}],
+        "🖥️CS110": [{name:"🟣UNIT ONE", link:"https://drive.google.com/file/d/1GsCi1VEvWjJ1nvSKyeLpoFReMlB20y0M/view", type:"doc"},
+        {name:"🌱TEST YOURSELF-Unit 1",link:"https://drive.google.com/file/d/1Dh5eeTJdFJdQQlmDjJ9Ox-1i-btuRvET/view",type:"doc"},                             
+        {name:"🟣UNIT TWO", link:"https://drive.google.com/file/d/1zC1Gt7eKuxw2SQDFzjHpZmUQU7AO8MHU/view", type:"doc"},
+         {name:"🌱TEST YOURSELF-Unit 2",link:"https://drive.google.com/file/d/1UUr14HUUHUcaHns55QcRMiHDPZquzZam/view?usp=drivesdk",type:"doc"},                             
+
+        {name:"🟣UNIT THREE", link:"https://drive.google.com/file/d/1z9S_4EG6Ig_n0J5cPwvz-4AEVg6U6FTh/view", type:"doc"}, 
+      {name:"🌱TEST YOURSELF-Unit 3",link:"https://drive.google.com/file/d/11jo5ataye84RTAxwrsYoyKOxmX4QY6d7/view",type:"doc"},
+        {name:"🟣UNIT FOUR", link:"https://drive.google.com/file/d/1BMIM6t1TdEl60F2qhmMEbmYMymJtUEXh/view", type:"doc"},
+        {name:"🟣UNIT FIVE", link:"https://drive.google.com/file/d/1JrfQwK9pYRogQzUp5gBoT2fR2rY0tWvf/view", type:"doc"},
+        {name:"🔵UNIT ONE(Old Notes)", link:"https://drive.google.com/file/d/1_n6FGJV9TWCDBwJa-UsLqu3qHTcvnOvS/view", type:"doc"},
+        {name:"🔵UNIT TWO(Old Notes)", link:"https://drive.google.com/file/d/1xt1CLBLIY-UzDOyWFefh1M8Cvcno8bre/view", type:"doc"},
+         {name:"🔵UNIT THREE(Old Notes)", link:"https://drive.google.com/file/d/11CwaEr32nKazfF0c97ggzLFBvdBF4cII/view", type:"doc"},
+      {name:"🟣CS110 IMPORTANT ABBREVIATION TO MASTER", link:"https://drive.google.com/file/d/11jSsJ2053eYp8ionuO-0O4DVqCPrFEZA/view", type:"doc"},
+      {name:"🌱Tests & Sessional Questions and Solutions",link:"https://drive.google.com/file/d/1zZ_JXCCC1S3Olmkr-3-04t7PrBq4aIKY/view",type:"doc"}, 
+       {name:"🌱Test One 2011",link:"https://drive.google.com/file/d/1whMQCyNNlJRl7NxMdSni4l15uaeGX8Cb/view",type:"doc"},
+       {name:"🌱2012 Test One",link:"https://drive.google.com/file/d/1E8AayY3p3_4T3456RFF4XbpRmxkHP-Gq/view",type:"doc"},
+        {name:"🌱2019 Test One",link:"https://drive.google.com/file/d/1VfY_ZNym2Q4aVPpgcdR8TiWGbQMEJOtl/view",type:"doc"},
+         {name:"🌱2014 Test One",link:"https://drive.google.com/file/d/1tFnskTPV4LV0T1zXVkAlQmdZ_5oNNFhh/view", type:"doc"}]
+    },
+    "Term 2": {
+        "⚙️PH110": [
+            {name:"Physics Term2 Notes", link:"", type:"doc"}
+        ],
+        "⚗️CH110": [],
+        "🧬BI110": [],
+        "🔣MA110": [],
+        "📠LA111": [],
+        "🖥️CS110": []
+    },
+    "Term 3": {
+        "⚙️PH110": [],
+        "⚗️CH110": [],
+        "🧬BI110": [],
+        "🔣MA110": [],
+        "📠LA111": [],
+        "🖥️CS110": []
+    }
 };
 
-// Flatten all docs for global search
-const allDocs = [];
-for(const course in courseDocs){
-  courseDocs[course].forEach(doc=>{
-    allDocs.push({...doc, course});
-  });
-}
 
-// Functions
-function openCourse(course){
-  coursesView.style.display="none";
-  topicsView.style.display="block";
-  courseTitle.innerText=course+" Documents";
-  topicsGrid.innerHTML="";
-  courseDocs[course].forEach(doc=>{
-    const card = document.createElement("div");
-    card.className="card";
-    card.innerHTML=`<i class="fa-solid fa-file-lines"></i><span>${doc.title}</span>`;
-    card.onclick=()=>{ viewDoc(doc.link, doc.download, doc.title); };
-    topicsGrid.appendChild(card);
-  });
-}
+// Selected
+let selectedTerm = "";
+let selectedCourse = "";
 
-function goBack(){
-  topicsView.style.display="none";
-  coursesView.style.display="block";
-}
+// Pages
+const pageTerm = document.getElementById("pageTerm");
+const pageCourse = document.getElementById("pageCourse");
+const pageFiles = document.getElementById("pageFiles");
 
-function viewDoc(link, download, title){
-  docFrame.src = link;
-  docTitle.innerText = title;
-  downloadLink.href = download;
-  docModal.style.display = "flex";
-}
+const termList = document.getElementById("termList");
+const courseList = document.getElementById("courseList");
+const filesList = document.getElementById("filesList");
 
-function closeDoc(){
-  docFrame.src = "";
-  docModal.style.display = "none";
-}
+// Modal
+const modal = document.getElementById("modal");
+const modalFrame = document.getElementById("modalFrame");
+const modalVideo = document.getElementById("modalVideo");
+const downloadBtn = document.getElementById("downloadBtn");
 
-/* Global search */
-function filterAllDocs(){
-  const query = document.getElementById('globalSearch').value.toLowerCase();
-  if(query.trim()===""){
-    // hide search results, show courses
-    topicsView.style.display="none";
-    coursesView.style.display="block";
-    return;
-  }
-
-  // Show search results
-  coursesView.style.display="none";
-  topicsView.style.display="block";
-  courseTitle.innerText="Search Results";
-  topicsGrid.innerHTML="";
-
-  const results = allDocs.filter(doc=>doc.title.toLowerCase().includes(query));
-  if(results.length===0){
-    topicsGrid.innerHTML="<p>No documents found.</p>";
-    return;
-  }
-
-  results.forEach(doc=>{
-    const card = document.createElement("div");
-    card.className="card";
-    card.innerHTML=`<i class="fa-solid fa-file-lines"></i><span>${doc.title} (${doc.course})</span>`;
-    card.onclick=()=>{ viewDoc(doc.link, doc.download, doc.title); };
-    topicsGrid.appendChild(card);
-  });
-}
-
-/* Sidebar toggle */
-const sideMenu=document.getElementById('sideMenu');
-const hamburger=document.querySelector('.hamburger');
-hamburger.addEventListener('click', ()=>{ sideMenu.classList.toggle('open'); });
-document.addEventListener('click', (e)=>{
-  if(!sideMenu.contains(e.target) && !hamburger.contains(e.target)){
-    sideMenu.classList.remove('open');
-  }
+// Populate Term
+Object.keys(docsc).forEach(term => {
+    const li = document.createElement("li");
+    li.innerHTML = `<a href="#">${term}</a>`;
+    li.onclick = () => { selectedTerm = term; showCourses(); };
+    termList.appendChild(li);
 });
+
+function showCourses(){
+    pageTerm.classList.add("hidden");
+    pageCourse.classList.remove("hidden");
+    courseList.innerHTML = "";
+    Object.keys(docsc[selectedTerm]).forEach(course => {
+        const li = document.createElement("li");
+        li.innerHTML = `<a href="#">${course}</a>`;
+        li.onclick = () => { selectedCourse = course; showFiles(); };
+        courseList.appendChild(li);
+    });
+}
+
+function showFiles(){
+    pageCourse.classList.add("hidden");
+    pageFiles.classList.remove("hidden");
+    filesList.innerHTML = "";
+    const topicFiles = docsc[selectedTerm][selectedCourse];
+    if(!topicFiles || topicFiles.length === 0){
+        filesList.innerHTML = "<div class='card'>No files available.</div>";
+        return;
+    }
+    topicFiles.forEach(f => {
+        const div = document.createElement("div");
+        div.className = "card";
+        div.innerHTML = `<p>${f.name} ${f.type==="doc"?"📄":"▶️"}</p>`;
+        div.onclick = () => openModal(f);
+        filesList.appendChild(div);
+    });
+}
+
+// Open Modal
+function openModal(f){
+    modal.style.display = "flex";
+    if(f.type==="doc"){
+        modalFrame.src = f.link;
+        modalFrame.classList.remove("hidden");
+        modalVideo.classList.add("hidden");
+        downloadBtn.style.display = "inline-block";
+        downloadBtn.onclick = () => {
+            const downloadLink = f.link.replace('/preview','/uc?export=download');
+            window.open(downloadLink,'_blank');
+        };
+    } else {
+        modalVideo.src = f.link;
+        modalVideo.classList.remove("hidden");
+        modalFrame.classList.add("hidden");
+        downloadBtn.style.display = "none";
+    }
+}
+
+// Close Modal
+function closeModal(){
+    modal.style.display = "none";
+    modalFrame.src = "";
+    modalVideo.src = "";
+}
+
+// Back button
+function goBack(page){
+    pageTerm.classList.add("hidden");
+    pageCourse.classList.add("hidden");
+    pageFiles.classList.add("hidden");
+    if(page === 'term') pageTerm.classList.remove("hidden");
+    if(page === 'course') pageCourse.classList.remove("hidden");
+}
 </script>
 
 </body>
