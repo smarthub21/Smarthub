@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>University Marketplace</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --primary:#0a3cff;
+  --primary-dark:#062bb5;
+  --accent:#25D366;
+  --danger:#ff4d4d;
+  --bg:#f5f7fb;
+  --card:#ffffff;
+  --text-main:#222;
+  --text-muted:#777;
+}
+
+*{box-sizing:border-box}
+body{margin:0;font-family:Poppins,sans-serif;background:var(--bg);color:var(--text-main)}
+h1,h2,h3,p{margin:0;padding:0}
+
+/* Sticky Header */
+.sticky-header{display:none;position:sticky;top:0;background:#fff;display:flex;justify-content:center;align-items:center;padding:6px 0;z-index:1000;box-shadow:0 2px 6px rgba(0,0,0,0.1)}
+.sticky-header img{height:40px;width:auto}
+
+/* Landing */
+#landing{height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#0a3cff;color:#fff;text-align:center;position:relative}
+.landing-logo img{height:60px;width:auto;margin-bottom:20px}
+.cta-btn{background:var(--accent);padding:14px 32px;border-radius:40px;color:#fff;font-weight:600;cursor:pointer;transition:0.25s}
+.cta-btn:hover{opacity:.9}
+
+/* Categories */
+.categories{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:20px}
+.category-card{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;padding:20px;border-radius:14px;text-align:center;cursor:pointer;transition:0.25s}
+.category-card:hover{transform:translateY(-4px);box-shadow:0 10px 20px rgba(0,0,0,0.2)}
+
+/* Category sections */
+.category-section{display:none;padding:20px}
+.top-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:10px}
+.back-btn{cursor:pointer;color:var(--primary);font-weight:500}
+.search-box input{padding:8px 14px;border-radius:20px;border:1px solid #ccc;width:220px}
+
+/* Items grid */
+.items{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+
+/* Item card */
+.item-card{background:#fff;border-radius:12px;padding:10px;box-shadow:0 6px 16px rgba(0,0,0,.08);display:flex;flex-direction:column}
+
+/* Slider */
+.slider{position:relative;width:100%;height:90px;overflow:hidden;border-radius:10px;margin-bottom:6px}
+.slide{position:absolute;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .4s;cursor:pointer}
+.slide.active{opacity:1}
+
+/* Arrows */
+.arrow{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.5);color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;z-index:5}
+.arrow.left{left:6px}
+.arrow.right{right:6px}
+
+/* Text */
+.item-card h3{font-size:13px;margin:4px 0}
+.price{font-weight:700;color:var(--primary);font-size:14px}
+.desc{font-size:12px;color:var(--text-muted);flex-grow:1}
+.order-btn{margin-top:6px;background:var(--accent);color:#fff;text-align:center;padding:6px;border-radius:18px;font-size:12px;cursor:pointer;display:inline-block;text-decoration:none;transition:0.2s}
+.order-btn:hover{opacity:.85}
+.seller{font-size:10px;color:var(--text-muted);margin-top:4px}
+
+/* Preview modal */
+.preview{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:9999}
+.preview img{max-width:90%;max-height:90%;border-radius:12px}
+.preview span{position:absolute;top:20px;right:25px;color:#fff;font-size:32px;cursor:pointer}
+
+/* Responsive */
+@media(max-width:480px){.categories,.items{grid-template-columns:repeat(2,1fr)}.search-box input{width:100%}}
+</style>
+</head>
+<body>
+
+<!-- Sticky Header -->
+<header class="sticky-header">
+  <img src="hub.png" alt="Marketplace Logo">
+</header>
+
+<!-- Landing -->
+<section id="landing">
+  <div class="landing-logo">
+    <img src="ziti.jpg" alt="Marketplace Logo">
+  </div>
+  <h1>University Marketplace</h1>
+  <div class="cta-btn" onclick="showDashboard()">Start Browsing</div>
+</section>
+
+<!-- Dashboard -->
+<section id="dashboard" style="display:none;padding:20px">
+  <h2 class="section-title">Browse by Category</h2>
+  <div class="categories">
+    <div class="category-card" onclick="showCategory('fashion')">👕 Fashion</div>
+    <div class="category-card" onclick="showCategory('food')">Accommodation</div>
+    <div class="category-card" onclick="showCategory('academic')">📚 Academic</div>
+    <div class="category-card" onclick="showCategory('electronics')">💻 Electronics</div>
+  </div>
+</section>
+
+<!-- CATEGORY: Fashion -->
+<section id="fashion" class="category-section">
+  <div class="top-bar">
+    <span class="back-btn" onclick="showDashboard()">← Back</span>
+    <div class="search-box">
+      <input type="text" placeholder="Search..." onkeyup="searchItems(this,'fashionItems')">
+    </div>
+  </div>
+  <h2 class="section-title">Fashion</h2>
+  <div class="items" id="fashionItems">
+    <div class="item-card" data-name="Top and down" data-price="K250.00" data-seller="Style hub store-Enock">
+      <div class="slider">
+        <span class="arrow left">‹</span>
+        <img src="dbw.jpg" class="slide active" onclick="openPreview(this)">
+        <img src="dbw2.jpg" class="slide" onclick="openPreview(this)">
+        <img src="dbw1.jpg" class="slide" onclick="openPreview(this)">
+        <img src="dbw3.jpg" class="slide" onclick="openPreview(this)">
+
+        <span class="arrow right">›</span>
+      </div>
+      <h3>suit</h3>
+      <div class="price">K250.00</div>
+      <p class="desc">Good Quality</p>
+      <a class="order-btn" href="#" onclick="sendWhatsApp(this)">Buy</a>
+      <div class="seller">Style hub store-Mevalous</div>
+    </div>
+<div class="item-card" data-name="T-shirts" data-price="K250.00" data-seller="Style hub store-Enock">
+      <div class="slider">
+        <span class="arrow left">‹</span>
+        <img src="t2.jpg" class="slide active" onclick="openPreview(this)">
+        <img src="t5.jpg" class="slide" onclick="openPreview(this)">
+        <img src="t2.jpg" class="slide" onclick="openPreview(this)">
+        
+
+        <span class="arrow right">›</span>
+      </div>
+      <h3>suit</h3>
+      <div class="price">K250.00</div>
+      <p class="desc">Good Quality</p>
+      <a class="order-btn" href="#" onclick="sendWhatsApp(this)">Buy</a>
+      <div class="seller">Style hub store-Mevalous</div>
+    </div>
+<div class="item-card" data-name="Jersey" data-price="K120.00" data-seller="Smart hub store-Enock">
+      <div class="slider">
+        <span class="arrow left">‹</span>
+        <img src="120.jpg" class="slide active" onclick="openPreview(this)">
+        <img src="123.jpg" class="slide" onclick="openPreview(this)">
+        <img src="121.jpg" class="slide" onclick="openPreview(this)">
+        <img src="120.jpg" class="slide" onclick="openPreview(this)">
+
+        <span class="arrow right">›</span>
+      </div>
+      <h3>Jersey</h3>
+      <div class="price">K120.00</div>
+      <p class="desc">Good Quality-Second class</p>
+      <a class="order-btn" href="#" onclick="sendWhatsApp(this)">Buy</a>
+      <div class="seller">Smart HUB-Enock</div>
+    </div>
+    <div class="item-card" data-name="jersey" data-price="K150" data-seller="Smart Hub">
+      <div class="slider">
+        <span class="arrow left">‹</span>
+        <img src="100.jpg" class="slide active" onclick="openPreview(this)">
+        <img src="101.jpg" class="slide" onclick="openPreview(this)">
+          <img src="102.jpg" class="slide" onclick="openPreview(this)">
+         <img src="103.jpg" class="slide" onclick="openPreview(this)">
+        <span class="arrow right">›</span>
+      </div>
+      <h3>Jersey</h3>
+      <div class="price">K100</div>
+      <p class="desc">Good Quality- Third class</p>
+      <a class="order-btn" href="#" onclick="sendWhatsApp(this)">Buy</a>
+      <div class="seller">Smart Hub- Enock</div>
+    </div>
+<div class="item-card" data-name="Safety Boots" data-price="K300" data-seller="Smart Hub">
+      <div class="slider">
+        <span class="arrow left">‹</span>
+        <img src="sbooti.jpg" class="slide active" onclick="openPreview(this)">
+        <img src="sboot.jpg" class="slide" onclick="openPreview(this)">
+          <img src="sbooti.jpg" class="slide" onclick="openPreview(this)">
+         <img src="sboot.jpg" class="slide" onclick="openPreview(this)">
+        <span class="arrow right">›</span>
+      </div>
+      <h3>Safety Boots</h3>
+      <div class="price">K300.00</div>
+      <p class="desc">Good Quality-Boots For Enginees</p>
+      <a class="order-btn" href="#" onclick="sendWhatsApp(this)">Buy</a>
+      <div class="seller">Mercy Stores</div>
+    </div>
+<div class="item-card" data-name="Top and down" data-price="K890.00" data-seller="Smart hub store-Enock">
+      <div class="slider">
+        <span class="arrow left">‹</span>
+        <img src="booti.jpg" class="slide active" onclick="openPreview(this)">
+        <img src="boot.jpg" class="slide" onclick="openPreview(this)">
+        <img src="booti.jpg" class="slide" onclick="openPreview(this)">
+
+        <span class="arrow right">›</span>
+      </div>
+      <h3>Safety boot</h3>
+      <div class="price">K890.00</div>
+      <p class="desc">Good Quality for Engineers</p>
+      <a class="order-btn" href="#" onclick="sendWhatsApp(this)">Buy</a>
+      <div class="seller">Smart HUB-Enock</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- CATEGORY: Food -->
+<section id="food" class="category-section">
+  <div class="top-bar">
+    <span class="back-btn" onclick="showDashboard()">← Back</span>
+    <div class="search-box">
+      <input type="text" placeholder="Search..." onkeyup="searchItems(this,'foodItems')">
+    </div>
+  </div>
+  <h2 class="section-title">Food & Groceries</h2>
+  <div class="items" id="foodItems">
+    <div class="item-card" data-name="Club Sandwich" data-price="K30" data-seller="Campus Café">
+      <div class="slider">
+        <span class="arrow left">‹</span>
+        <img src="images/sandwich1.jpg" class="slide active" onclick="openPreview(this)">
+        <img src="images/sandwich2.jpg" class="slide" onclick="openPreview(this)">
+        <span class="arrow right">›</span>
+      </div>
+      <h3>Club Sandwich</h3>
+      <div class="price">K30</div>
+      <p class="desc">Fresh sandwich with vegetables and cheese.</p>
+      <a class="order-btn" href="#" onclick="sendWhatsApp(this)">Buy</a>
+      <div class="seller">Campus Café</div>
+    </div>
+    <div class="item-card" data-name="Pizza Slice" data-price="K40" data-seller="Campus Café">
+      <div class="slider">
+        <span class="arrow left">‹</span>
+        <img src="images/pizza1.jpg" class="slide active" onclick="openPreview(this)">
+        <img src="images/pizza2.jpg" class="slide" onclick="openPreview(this)">
+        <span class="arrow right">›</span>
+      </div>
+      <h3>Pizza Slice</h3>
+      <div class="price">K40</div>
+      <p class="desc">Cheesy slice with toppings.</p>
+      <a class="order-btn" href="#" onclick="sendWhatsApp(this)">Buy</a>
+      <div class="seller">Campus Café</div>
+    </div>
+  </div>
+</section>
+
+<!-- CATEGORY: Academic -->
+<section id="academic" class="category-section">
+  <div class="top-bar">
+    <span class="back-btn" onclick="showDashboard()">← Back</span>
+    <div class="search-box">
+      <input type="text" placeholder="Search..." onkeyup="searchItems(this,'academicItems')">
+    </div>
+  </div>
+  <h2 class="section-title">Academic Materials</h2>
+  <div class="items" id="academicItems">
+    <div class="item-card" data-name="Binary Operations Notes" data-price="Free" data-seller="Prof Alick">
+      <div class="slider">
+        <span class="arrow left">‹</span>
+        <img src="alick.png" class="slide active" onclick="openPreview(this)">
+        <img src="alick.png" class="slide" onclick="openPreview(this)">
+        <span class="arrow right">›</span>
+      </div>
+      <h3>Binary Operations Notes</h3>
+      <div class="price">Free</div>
+      <p class="desc">Step-by-step demo of Binary Operations.</p>
+      <a class="order-btn" href="#" onclick="sendWhatsApp(this)">Get</a>
+      <div class="seller">Prof Alick</div>
+    </div>
+    <div class="item-card" data-name="Physics Notes" data-price="K120" data-seller="Physics Dept">
+      <div class="slider">
+        <span class="arrow left">‹</span>
+        <img src="images/physics1.jpg" class="slide active" onclick="openPreview(this)">
+        <img src="images/physics2.jpg" class="slide" onclick="openPreview(this)">
+        <span class="arrow right">›</span>
+      </div>
+      <h3>Physics Notes</h3>
+      <div class="price">K120</div>
+      <p class="desc">Covers mechanics and thermodynamics.</p>
+      <a class="order-btn" href="#" onclick="sendWhatsApp(this)">Buy</a>
+      <div class="seller">Physics Dept</div>
+    </div>
+  </div>
+</section>
+
+<!-- CATEGORY: Electronics -->
+<section id="electronics" class="category-section">
+  <div class="top-bar">
+    <span class="back-btn" onclick="showDashboard()">← Back</span>
+    <div class="search-box">
+      <input type="text" placeholder="Search..." onkeyup="searchItems(this,'electronicsItems')">
+    </div>
+  </div>
+  <h2 class="section-title">Electronics</h2>
+  <div class="items" id="electronicsItems">
+    <div class="item-card" data-name="8GB USB Drive" data-price="K120" data-seller="Smart Hub">
+      <div class="slider">
+        <span class="arrow left">‹</span>
+        <img src="flash.jpg" class="slide active" onclick="openPreview(this)">
+        <img src="flash.jpg" class="slide" onclick="openPreview(this)">
+        <span class="arrow right">›</span>
+      </div>
+      <h3>8GB USB Drive</h3>
+      <div class="price">K120</div>
+      <p class="desc">Metal USB flash drive</p>
+      <a class="order-btn" href="#" onclick="sendWhatsApp(this)">Buy</a>
+      <div class="seller">Smart HUB-Enock</div>
+    </div>
+    <div class="item-card" data-name="Dell Laptop" data-price="K3200" data-seller="Smart Hub">
+      <div class="slider">
+        <span class="arrow left">‹</span>
+        <img src="pc32.jpg" class="slide active" onclick="openPreview(this)">
+        <img src="pc32.jpg" class="slide" onclick="openPreview(this)">
+        <span class="arrow right">›</span>
+      </div>
+      <h3>Dell Laptop</h3>
+      <div class="price">K3200.00</div>
+      <p class="desc">Pre-owned laptop in good condition</p>
+      <a class="order-btn" href="#" onclick="sendWhatsApp(this)">Buy</a>
+      <div class="seller">Smart HUB-Enock</div>
+    </div>
+  </div>
+</section>
+
+<!-- Preview modal -->
+<div id="preview" class="preview" onclick="closePreview()">
+  <span>&times;</span>
+  <img src="">
+</div>
+
+<script>
+/* Show dashboard / categories */
+function showDashboard(){
+  document.getElementById('landing').style.display='none';
+  document.getElementById('dashboard').style.display='block';
+  hideAll();
+  document.querySelector('.sticky-header').style.display='flex';
+}
+function showCategory(id){
+  document.getElementById('dashboard').style.display='none';
+  hideAll();
+  document.getElementById(id).style.display='block';
+  document.querySelector('.sticky-header').style.display='flex';
+}
+function hideAll(){
+  document.querySelectorAll('.category-section').forEach(s=>s.style.display='none');
+}
+
+/* Slider arrows */
+document.querySelectorAll('.slider').forEach(slider=>{
+  let slides = slider.querySelectorAll('.slide');
+  let index = 0;
+  slider.querySelector('.right').onclick = ()=>{
+    slides[index].classList.remove('active');
+    index = (index+1)%slides.length;
+    slides[index].classList.add('active');
+  };
+  slider.querySelector('.left').onclick = ()=>{
+    slides[index].classList.remove('active');
+    index = (index-1+slides.length)%slides.length;
+    slides[index].classList.add('active');
+  };
+});
+
+/* Preview modal */
+function openPreview(img){
+  document.getElementById('preview').style.display='flex';
+  document.querySelector('#preview img').src = img.src;
+}
+function closePreview(){
+  document.getElementById('preview').style.display='none';
+}
+
+/* Search bar */
+function searchItems(input,id){
+  let filter = input.value.toLowerCase();
+  document.querySelectorAll('#'+id+' .item-card').forEach(card=>{
+    card.style.display = card.innerText.toLowerCase().includes(filter)?'':'none';
+  });
+}
+
+/* WhatsApp pre-filled message */
+function sendWhatsApp(button){
+  const card = button.closest('.item-card');
+  const name = card.getAttribute('data-name');
+  const price = card.getAttribute('data-price');
+  const seller = card.getAttribute('data-seller');
+  
+  const phone = '260768037965';
+  const message = `Hello, I want to buy "${name}" for ${price} from ${seller}.`;
+  const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+  window.open(url,'_blank');
+}
+</script>
+
+</body>
+</html>
