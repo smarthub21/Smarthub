@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>CA Calculator | Learn with GPT</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body{ font-family:Arial,sans-serif; background:#f4f6f8; margin:0; padding:0; }
+.header{ background:#0B3D91; color:white; padding:15px; text-align:center; font-size:20px; font-weight:bold; }
+.container{ max-width:400px; margin:30px auto; background:white; padding:20px; border-radius:12px; box-shadow:0 4px 10px rgba(0,0,0,0.1); }
+h2{ text-align:center; color:#0B3D91; }
+label{ display:block; margin:12px 0 4px; font-weight:bold; }
+input[type=number]{ width:100%; padding:10px; font-size:16px; border-radius:6px; border:1px solid #ccc; box-sizing:border-box; }
+select{ width:100%; padding:10px; font-size:16px; border-radius:6px; border:1px solid #ccc; }
+button{ margin-top:20px; width:100%; padding:12px; background:#0B3D91; color:white; border:none; font-size:16px; border-radius:6px; cursor:pointer; }
+button:hover{ background:#094182; }
+.result{ margin-top:20px; font-size:18px; text-align:center; color:#0B3D91; font-weight:bold; }
+</style>
+</head>
+<body>
+
+<div class="header">CA Calculator</div>
+<div class="container">
+  <h2>Calculate Your CA</h2>
+  
+  <label for="course">Select Course Type</label>
+  <select id="course">
+    <option value="nonlab">Non-Lab (MA110, BI110)</option>
+    <option value="lab">Lab Course (PH110, CH110)</option>
+  </select>
+  
+  <label for="test1">Test 1 (out of 100)</label>
+  <input type="number" id="test1" min="0" max="100">
+  
+  <label for="test2">Test 2 (out of 100)</label>
+  <input type="number" id="test2" min="0" max="100">
+  
+  <div id="labDiv" style="display:none;">
+    <label for="lab">Lab Marks (out of 10)</label>
+    <input type="number" id="lab" min="0" max="10">
+  </div>
+  
+  <button onclick="calculateCA()">Calculate CA</button>
+  <div class="result" id="result"></div>
+</div>
+
+<script>
+const courseSelect = document.getElementById('course');
+const labDiv = document.getElementById('labDiv');
+
+courseSelect.addEventListener('change', ()=>{
+  if(courseSelect.value==='lab') labDiv.style.display='block';
+  else labDiv.style.display='none';
+});
+
+function calculateCA(){
+  const courseType = courseSelect.value;
+  const t1 = parseFloat(document.getElementById('test1').value) || 0;
+  const t2 = parseFloat(document.getElementById('test2').value) || 0;
+  let ca = 0;
+  
+  if(courseType==='nonlab'){
+    ca = (t1/100*20) + (t2/100*20); // both tests scaled to 20
+  } else {
+    const lab = parseFloat(document.getElementById('lab').value) || 0;
+    ca = (t1/100*15) + (t2/100*15) + lab; // tests scaled to 15 each, lab out of 10
+  }
+  
+  // Limit to 2 decimal places
+  ca = Math.min(ca, 40).toFixed(2);
+  document.getElementById('result').innerText = `Your CA is: ${ca} / 40`;
+}
+</script>
+
+</body>
+</html>

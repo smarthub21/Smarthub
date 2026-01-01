@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Calculator | Learn with GPT</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#f4f6f8;
+}
+.header{
+  background:#0B3D91;
+  color:white;
+  padding:15px 20px 25px;
+  border-bottom-left-radius:22px;
+  border-bottom-right-radius:22px;
+  text-align:center;
+  font-size:20px;
+  font-weight:bold;
+}
+.toggle-container{
+  text-align:center;
+  margin-top:20px;
+}
+.toggle-btn{
+  padding:10px 30px;
+  border:none;
+  background:#e0e0e0;
+  border-radius:8px;
+  cursor:pointer;
+  margin:0 5px;
+  font-weight:bold;
+  color:#0B3D91;
+  transition:0.2s;
+}
+.toggle-btn.active{
+  background:#0B3D91;
+  color:white;
+}
+.calculator{
+  max-width:400px;
+  margin:30px auto;
+  background:white;
+  border-radius:12px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.1);
+  padding:20px;
+}
+.display{
+  width:100%;
+  height:60px;
+  background:#eef3fa;
+  border-radius:8px;
+  margin-bottom:15px;
+  text-align:right;
+  font-size:24px;
+  padding:10px;
+  box-sizing:border-box;
+  overflow-x:auto;
+}
+.buttons{
+  display:grid;
+  gap:10px;
+}
+.standard .buttons{
+  grid-template-columns:repeat(4,1fr);
+}
+.scientific .buttons{
+  grid-template-columns:repeat(5,1fr);
+}
+/* Button styling */
+button{
+  padding:15px;
+  font-size:16px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+  background:#0B3D91;
+  color:white;
+  transition:0.2s;
+}
+button.operator{ background:#1976d2; }
+button:hover{ background:#155fa0; }
+button.operator:hover{ background:#125295; }
+button.zero{ grid-column:span 2; }
+</style>
+</head>
+<body>
+
+<div class="header">Learn with GPT - Calculator</div>
+
+<div class="toggle-container">
+  <button class="toggle-btn active" id="standardBtn">Standard</button>
+  <button class="toggle-btn" id="scientificBtn">Scientific</button>
+</div>
+
+<!-- Standard Calculator -->
+<div class="calculator standard" id="standardCalc">
+  <div id="displayStd" class="display">0</div>
+  <div class="buttons">
+    <button onclick="press('7','std')">7</button>
+    <button onclick="press('8','std')">8</button>
+    <button onclick="press('9','std')">9</button>
+    <button class="operator" onclick="press('/','std')">÷</button>
+
+    <button onclick="press('4','std')">4</button>
+    <button onclick="press('5','std')">5</button>
+    <button onclick="press('6','std')">6</button>
+    <button class="operator" onclick="press('*','std')">×</button>
+
+    <button onclick="press('1','std')">1</button>
+    <button onclick="press('2','std')">2</button>
+    <button onclick="press('3','std')">3</button>
+    <button class="operator" onclick="press('-','std')">−</button>
+
+    <button class="zero" onclick="press('0','std')">0</button>
+    <button onclick="press('.','std')">.</button>
+    <button class="operator" onclick="press('+','std')">+</button>
+    <button class="operator" onclick="calculate('std')">=</button>
+
+    <button class="operator" onclick="clearDisplay('std')">C</button>
+  </div>
+</div>
+
+<!-- Scientific Calculator -->
+<div class="calculator scientific" id="scientificCalc" style="display:none;">
+  <div id="displaySci" class="display">0</div>
+  <div class="buttons">
+    <!-- Function row 1 -->
+    <button onclick="press('Math.sin(','sci')">sin</button>
+    <button onclick="press('Math.cos(','sci')">cos</button>
+    <button onclick="press('Math.tan(','sci')">tan</button>
+    <button onclick="press('Math.log10(','sci')">log</button>
+    <button onclick="press('Math.log(','sci')">ln</button>
+
+    <!-- Function row 2 -->
+    <button onclick="press('Math.sqrt(','sci')">√</button>
+    <button onclick="press('Math.exp(','sci')">exp</button>
+    <button onclick="press('(','sci')">(</button>
+    <button onclick="press(')','sci')">)</button>
+    <button onclick="press('Math.PI','sci')">π</button>
+
+    <!-- Numbers row -->
+    <button onclick="press('7','sci')">7</button>
+    <button onclick="press('8','sci')">8</button>
+    <button onclick="press('9','sci')">9</button>
+    <button class="operator" onclick="press('/','sci')">÷</button>
+    <button onclick="press('%','sci')">%</button>
+
+    <button onclick="press('4','sci')">4</button>
+    <button onclick="press('5','sci')">5</button>
+    <button onclick="press('6','sci')">6</button>
+    <button class="operator" onclick="press('*','sci')">×</button>
+    <button class="operator" onclick="clearDisplay('sci')">C</button>
+
+    <button onclick="press('1','sci')">1</button>
+    <button onclick="press('2','sci')">2</button>
+    <button onclick="press('3','sci')">3</button>
+    <button class="operator" onclick="press('-','sci')">−</button>
+    <button class="operator" onclick="calculate('sci')">=</button>
+
+    <button class="zero" onclick="press('0','sci')">0</button>
+    <button onclick="press('.','sci')">.</button>
+    <button class="operator" onclick="press('+','sci')">+</button>
+  </div>
+</div>
+
+<script>
+let currentStd='', currentSci='';
+const displayStd=document.getElementById('displayStd');
+const displaySci=document.getElementById('displaySci');
+
+function press(key,type){
+  if(type==='std'){
+    if(currentStd==='0' && key!=='0' && key!=='.') currentStd='';
+    currentStd+=key;
+    displayStd.innerText=currentStd;
+  } else {
+    if(currentSci==='0' && key!=='0' && key!=='.') currentSci='';
+    currentSci+=key;
+    displaySci.innerText=currentSci;
+  }
+}
+
+function clearDisplay(type){
+  if(type==='std'){ currentStd=''; displayStd.innerText='0'; }
+  else{ currentSci=''; displaySci.innerText='0'; }
+}
+
+function calculate(type){
+  try{
+    if(type==='std'){
+      const result = Function('"use strict";return (' + currentStd + ')')();
+      displayStd.innerText=result;
+      currentStd=result.toString();
+    } else {
+      const result = Function('"use strict";return (' + currentSci + ')')();
+      displaySci.innerText=result;
+      currentSci=result.toString();
+    }
+  } catch{
+    if(type==='std'){ displayStd.innerText='Error'; currentStd=''; }
+    else{ displaySci.innerText='Error'; currentSci=''; }
+  }
+}
+
+// Toggle calculators
+const stdBtn=document.getElementById('standardBtn');
+const sciBtn=document.getElementById('scientificBtn');
+const stdCalc=document.getElementById('standardCalc');
+const sciCalc=document.getElementById('scientificCalc');
+
+stdBtn.addEventListener('click', ()=>{
+  stdBtn.classList.add('active');
+  sciBtn.classList.remove('active');
+  stdCalc.style.display='block';
+  sciCalc.style.display='none';
+});
+sciBtn.addEventListener('click', ()=>{
+  sciBtn.classList.add('active');
+  stdBtn.classList.remove('active');
+  sciCalc.style.display='block';
+  stdCalc.style.display='none';
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Quiz | Learn with GPT</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+body{ margin:0; font-family:Arial,sans-serif; background:#f4f6f8; }
+
+/* Header */
+.header{
+  background:#0B3D91;
+  color:white;
+  padding:15px 20px 25px;
+  border-bottom-left-radius:22px;
+  border-bottom-right-radius:22px;
+  position:relative;
+  text-align:center;
+}
+.hamburger{ position:absolute; left:20px; top:18px; font-size:22px; cursor:pointer; }
+.logout{ position:absolute; right:20px; top:18px; font-size:20px; cursor:pointer; }
+.title{ font-size:20px; font-weight:bold; }
+.welcome{ font-size:14px; margin-top:5px; opacity:0.9; }
+
+/* Sidebar */
+.menu{
+  position:fixed; top:0; left:0;
+  width:260px; height:100%;
+  background:white;
+  box-shadow:2px 0 6px rgba(0,0,0,0.2);
+  transform:translateX(-100%);
+  transition:0.3s;
+  z-index:1000;
+}
+.menu.open{ transform:translateX(0); }
+.menu-top{ text-align:center; padding:20px; border-bottom:1px solid #e3ebf5; }
+.menu-logo{ width:90px; border-radius:50%; }
+.menu a{
+  display:block; padding:15px 20px;
+  text-decoration:none; color:#333;
+}
+.menu a i{ margin-right:10px; color:#0B3D91; }
+.menu a:hover{ background:#eef3fa; }
+
+/* Content */
+.content{ padding:20px; }
+
+/* Grid */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+  gap:15px;
+}
+
+/* Cards */
+.card{
+  background:white;
+  padding:25px 20px;
+  border-radius:14px;
+  text-align:center;
+  cursor:pointer;
+  box-shadow:0 2px 5px rgba(0,0,0,0.08);
+  transition:0.2s;
+}
+.card:hover{ background:#eef3fa; }
+.card i{ font-size:30px; color:#0B3D91; margin-bottom:10px; }
+.card span{ display:block; font-weight:500; }
+
+/* Back Button */
+.back{
+  margin-bottom:15px;
+  cursor:pointer;
+  color:#0B3D91;
+  font-weight:bold;
+}
+
+/* Quiz */
+.quiz-container{
+  background:white;
+  padding:20px;
+  border-radius:12px;
+  max-width:700px;
+  margin:20px auto;
+  box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+.question{
+  font-weight:bold;
+  margin-bottom:10px;
+}
+.options button{
+  display:block;
+  width:100%;
+  text-align:left;
+  margin-bottom:10px;
+  padding:12px;
+  border:none;
+  border-radius:8px;
+  background:#eef3fa;
+  cursor:pointer;
+  transition:0.2s;
+}
+.options button:hover{ background:#d6e0f5; }
+.options button.correct{ background:#4caf50; color:white; }
+.options button.wrong{ background:#f44336; color:white; }
+.next-btn{
+  margin-top:10px;
+  padding:10px 18px;
+  background:#0B3D91;
+  color:white;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+  float:right;
+}
+.score-display{
+  font-size:18px;
+  font-weight:bold;
+  text-align:center;
+  margin-top:10px;
+}
+
+/* Timer */
+.timer{
+  font-weight:bold;
+  color:#0B3D91;
+  margin-bottom:10px;
+  text-align:right;
+}
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div id="sideMenu" class="menu">
+  <div class="menu-top">
+    <img src="assets/logo.png" class="menu-logo">
+  </div>
+  <a href="dashboard.html"><i class="fa-solid fa-house"></i>Dashboard</a>
+  <a href="contact.html"><i class="fa-solid fa-phone"></i>Contact Us</a>
+  <a href="motivation.html"><i class="fa-solid fa-lightbulb"></i>Motivation</a>
+  <a href="calculator.html"><i class="fa-solid fa-calculator"></i>Calculator</a>
+</div>
+
+<!-- Header -->
+<div class="header">
+  <div class="hamburger"><i class="fa-solid fa-bars"></i></div>
+  <div class="logout"><i class="fa-solid fa-power-off"></i></div>
+  <div class="title">Learn with GPT</div>
+  <div class="welcome">Welcome, <strong id="username"></strong></div>
+</div>
+
+<div class="content">
+
+  <!-- COURSES -->
+  <div id="coursesView">
+    <div class="grid">
+      <div class="card" onclick="openTopics('MA110')"><i class="fa-solid fa-square-root-variable"></i><span>MA110 - Mathematics</span></div>
+      <div class="card" onclick="openTopics('CH110')"><i class="fa-solid fa-flask"></i><span>CH110 - Chemistry</span></div>
+      <div class="card" onclick="openTopics('PH110')"><i class="fa-solid fa-atom"></i><span>PH110 - Physics</span></div>
+      <div class="card" onclick="openTopics('BI110')"><i class="fa-solid fa-dna"></i><span>BI110 - Biology</span></div>
+      <div class="card" onclick="openTopics('CS110')"><i class="fa-solid fa-code"></i><span>CS110 - Programming</span></div>
+      <div class="card" onclick="openTopics('LA110')"><i class="fa-solid fa-pen-nib"></i><span>LA110 - Communication</span></div>
+    </div>
+  </div>
+
+  <!-- TOPICS -->
+  <div id="topicsView" style="display:none;">
+    <div class="back" onclick="goBack()">← Back to Courses</div>
+    <h3 id="courseTitle"></h3>
+    <div id="topicsGrid" class="grid"></div>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="quizView" style="display:none;">
+    <div class="back" onclick="goBackToTopics()">← Back to Topics</div>
+    <div class="quiz-container">
+      <div class="timer" id="timer">Time Left: 0s</div>
+      <div class="question" id="questionText"></div>
+      <div class="options" id="optionsButtons"></div>
+      <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Next</button>
+      <div class="score-display" id="scoreDisplay" style="display:none;"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* Sample Quiz Questions per topic */
+const quizData={
+  "MA110-Algebra":[
+    {q:"2 + 2 =", options:["3","4","5","6"], answer:1},
+    {q:"5 x 3 =", options:["15","10","20","25"], answer:0},
+    {q:"Simplify: 3x + 2x =", options:["5x","6x","x","None"], answer:0}
+  ],
+  "CH110-Atomic Structure":[
+    {q:"Protons have a charge of?", options:["0","+1","-1","+2"], answer:1},
+    {q:"Electrons are found in?", options:["Nucleus","Orbitals","Protons","Neutrons"], answer:1}
+  ],
+  "PH110-Motion":[
+    {q:"Acceleration formula?", options:["v/t","s/t","v-u/t","s*v"], answer:2}
+  ],
+  "BI110-Cell Structure":[
+    {q:"Cell membrane is made of?", options:["Lipids","Proteins","Carbs","All"], answer:3}
+  ],
+  "CS110-Programming Basics":[
+    {q:"JS stands for?", options:["JavaScript","Java","JustScript","JScript"], answer:0}
+  ],
+  "LA110-Writing Skills":[
+    {q:"Formal letter starts with?", options:["Dear Sir/Madam","Hey","Yo","Hi"], answer:0}
+  ]
+};
+
+/* DOM elements */
+const coursesView = document.getElementById("coursesView");
+const topicsView = document.getElementById("topicsView");
+const quizView = document.getElementById("quizView");
+const topicsGrid = document.getElementById("topicsGrid");
+const courseTitle = document.getElementById("courseTitle");
+const questionText = document.getElementById("questionText");
+const optionsButtons = document.getElementById("optionsButtons");
+const nextBtn = document.getElementById("nextBtn");
+const scoreDisplay = document.getElementById("scoreDisplay");
+const timerDisplay = document.getElementById("timer");
+
+let currentCourse="", currentTopic="", currentQuiz=[], currentQIndex=0, score=0;
+let timeLeft=60; // total time in seconds
+let quizTimer;
+
+/* Hamburger */
+const sideMenu = document.getElementById("sideMenu");
+const hamburger = document.querySelector('.hamburger');
+hamburger.onclick = ()=>{ sideMenu.classList.toggle('open'); };
+document.addEventListener('click', e=>{
+  if(!sideMenu.contains(e.target) && !hamburger.contains(e.target)) sideMenu.classList.remove('open');
+});
+
+/* Logout */
+document.querySelector(".logout").onclick = ()=>{ window.location.href="login.html"; };
+
+/* Open Topics */
+function openTopics(course){
+  coursesView.style.display="none";
+  topicsView.style.display="block";
+  currentCourse = course;
+  courseTitle.innerText = course + " Topics";
+  topicsGrid.innerHTML="";
+  
+  const topics = Object.keys(quizData).filter(k=>k.startsWith(course+"-"));
+  topics.forEach(t=>{
+    const topicName = t.split("-")[1];
+    const card = document.createElement("div");
+    card.className="card";
+    card.innerHTML=`<i class="fa-solid fa-question"></i><span>${topicName}</span>`;
+    card.onclick=()=>{ startQuiz(t); };
+    topicsGrid.appendChild(card);
+  });
+}
+
+/* Back */
+function goBack(){
+  topicsView.style.display="none";
+  coursesView.style.display="block";
+}
+function goBackToTopics(){
+  quizView.style.display="none";
+  topicsView.style.display="block";
+  clearInterval(quizTimer);
+}
+
+/* Quiz Functions */
+function startQuiz(topic){
+  currentTopic = topic;
+  currentQuiz = quizData[topic];
+  currentQIndex=0;
+  score=0;
+  timeLeft=60; // reset timer per quiz
+  topicsView.style.display="none";
+  quizView.style.display="block";
+  scoreDisplay.style.display="none";
+  nextBtn.style.display="inline-block";
+  startTimer();
+  showQuestion();
+}
+
+function startTimer(){
+  clearInterval(quizTimer);
+  timerDisplay.innerText=`Time Left: ${timeLeft}s`;
+  quizTimer = setInterval(()=>{
+    timeLeft--;
+    timerDisplay.innerText=`Time Left: ${timeLeft}s`;
+    if(timeLeft<=0){
+      clearInterval(quizTimer);
+      alert(`Time's up! Your Score: ${score} / ${currentQuiz.length}`);
+      showScore();
+    }
+  }, 1000);
+}
+
+function showQuestion(){
+  const q = currentQuiz[currentQIndex];
+  questionText.innerText = q.q;
+  optionsButtons.innerHTML = "";
+  q.options.forEach((opt,i)=>{
+    const btn = document.createElement("button");
+    btn.innerText=opt;
+    btn.onclick = ()=>{ selectOption(i); };
+    optionsButtons.appendChild(btn);
+  });
+}
+
+function selectOption(index){
+  const q = currentQuiz[currentQIndex];
+  const btns = optionsButtons.querySelectorAll("button");
+  btns.forEach((b,i)=>{
+    b.disabled=true;
+    if(i===q.answer) b.classList.add("correct");
+    if(i===index && i!==q.answer) b.classList.add("wrong");
+  });
+  if(index===q.answer) score++;
+}
+
+function nextQuestion(){
+  currentQIndex++;
+  if(currentQIndex<currentQuiz.length){
+    showQuestion();
+  } else {
+    clearInterval(quizTimer);
+    showScore();
+  }
+}
+
+function showScore(){
+  questionText.innerText="";
+  optionsButtons.innerHTML="";
+  nextBtn.style.display="none";
+  scoreDisplay.style.display="block";
+  scoreDisplay.innerText=`Your Score: ${score} / ${currentQuiz.length}`;
+}
+</script>
+
+</body>
+</html>
