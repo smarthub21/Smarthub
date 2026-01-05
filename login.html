@@ -4,9 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Login - Learn With Enock Academy</title>
-<link rel="stylesheet" href="style.css">
+
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#2575fc">
+
 <style>
 body {
     font-family: Arial, sans-serif;
@@ -17,6 +18,7 @@ body {
     height: 100vh;
     margin: 0;
 }
+
 .login-container {
     background-color: white;
     padding: 30px 40px;
@@ -25,26 +27,31 @@ body {
     width: 100%;
     max-width: 400px;
 }
+
 .login-container h2 {
     text-align: center;
     color: #1e3a8a;
 }
+
 .login-container form {
     display: flex;
     flex-direction: column;
 }
+
 .login-container label {
     margin-top: 15px;
     margin-bottom: 5px;
     color: #1e3a8a;
     font-weight: bold;
 }
+
 .login-container input {
     padding: 10px;
     border-radius: 8px;
     border: 1px solid #ccc;
     outline: none;
 }
+
 .login-container button {
     margin-top: 20px;
     padding: 12px;
@@ -55,23 +62,28 @@ body {
     border-radius: 8px;
     cursor: pointer;
 }
+
 .login-container button:hover {
     background-color: #334155;
 }
+
 .login-container p {
     text-align: center;
     margin-top: 15px;
 }
+
 .login-container a {
     color: #1e3a8a;
     text-decoration: none;
 }
 </style>
 </head>
+
 <body>
 
 <div class="login-container">
     <h2>Login</h2>
+
     <form id="login-form">
         <label for="email">Email</label>
         <input type="email" id="email" required>
@@ -81,50 +93,52 @@ body {
 
         <button type="submit">Login</button>
     </form>
+
     <p>Don't have an account? <a href="signup.html">Sign Up</a></p>
 </div>
 
+<!-- 🔥 Firebase Login Script -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
 
 const firebaseConfig = {
- const firebaseConfig = {
   apiKey: "AIzaSyB7e9k4jB4sVDpqK0wKdY1GK3wEI8fFck4",
   authDomain: "smarthub-ff357.firebaseapp.com",
   databaseURL: "https://smarthub-ff357-default-rtdb.firebaseio.com",
   projectId: "smarthub-ff357",
-  storageBucket: "smarthub-ff357.firebasestorage.app",
+  storageBucket: "smarthub-ff357.appspot.com",
   messagingSenderId: "794427490398",
   appId: "1:794427490398:web:3350b0927dfc62d30134cf",
   measurementId: "G-7FZTLSB4LG"
 };
-  
+
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-document.getElementById('login-form').addEventListener('submit', async (e)=>{
+document.getElementById("login-form").addEventListener("submit", async (e) => {
     e.preventDefault();
-    const email = document.getElementById('email').value.trim();
-    const password = document.getElementById('password').value;
 
-    try{
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+
+    try {
         await signInWithEmailAndPassword(auth, email, password);
-        location.href = 'dashboard.html';
-    } catch(error){
+        window.location.href = "dashboard.html";
+    } catch (error) {
         alert(error.message);
     }
 });
 </script>
+
+<!-- 🔧 Service Worker -->
 <script>
 if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("sw.js")
-    .then(() => console.log("Service Worker registered"))
-    .catch((err) => console.log("SW registration failed:", err));
+        .then(() => console.log("Service Worker registered"))
+        .catch(err => console.log("Service Worker failed:", err));
 }
 </script>
 
-
 </body>
 </html>
-
