@@ -1,342 +1,340 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Quiz | Learn with GPT</title>
+<title>Quiz | Learn with Smarthub</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-<style>
-body{ margin:0; font-family:Arial,sans-serif; background:#f4f6f8; }
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
-/* Header */
+<style>
+body{margin:0;font-family:Arial,sans-serif;background:#f4f6f8}
+
+/* HEADER */
 .header{
-  background:#0B3D91;
-  color:white;
+  background:#0B3D91;color:white;
   padding:15px 20px 25px;
   border-bottom-left-radius:22px;
   border-bottom-right-radius:22px;
-  position:relative;
-  text-align:center;
+  position:relative;text-align:center
 }
-.hamburger{ position:absolute; left:20px; top:18px; font-size:22px; cursor:pointer; }
-.logout{ position:absolute; right:20px; top:18px; font-size:20px; cursor:pointer; }
-.title{ font-size:20px; font-weight:bold; }
-.welcome{ font-size:14px; margin-top:5px; opacity:0.9; }
+.hamburger{position:absolute;left:20px;top:18px;font-size:22px;cursor:pointer}
+.logout{position:absolute;right:20px;top:18px;font-size:20px;cursor:pointer}
+.title{font-size:20px;font-weight:bold}
+.welcome{font-size:14px;margin-top:5px}
 
-/* Sidebar */
+/* SIDEBAR */
 .menu{
-  position:fixed; top:0; left:0;
-  width:260px; height:100%;
-  background:white;
-  box-shadow:2px 0 6px rgba(0,0,0,0.2);
-  transform:translateX(-100%);
-  transition:0.3s;
-  z-index:1000;
+  position:fixed;top:0;left:0;width:260px;height:100%;
+  background:white;box-shadow:2px 0 6px rgba(0,0,0,.2);
+  transform:translateX(-100%);transition:.3s;z-index:1000
 }
-.menu.open{ transform:translateX(0); }
-.menu-top{ text-align:center; padding:20px; border-bottom:1px solid #e3ebf5; }
-.menu-logo{ width:90px; border-radius:50%; }
-.menu a{
-  display:block; padding:15px 20px;
-  text-decoration:none; color:#333;
+.menu.open{transform:translateX(0)}
+.menu a{display:block;padding:15px 20px;text-decoration:none;color:#333}
+.menu a i{margin-right:10px;color:#0B3D91}
+
+/* OVERLAY */
+#menuOverlay{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.4);
+  display:none;z-index:999
 }
-.menu a i{ margin-right:10px; color:#0B3D91; }
-.menu a:hover{ background:#eef3fa; }
+#menuOverlay.show{display:block}
 
-/* Content */
-.content{ padding:20px; }
+/* CONTENT */
+.content{padding:20px}
 
-/* Grid */
-.grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
-  gap:15px;
-}
-
-/* Cards */
+/* CARD */
 .card{
-  background:white;
-  padding:25px 20px;
-  border-radius:14px;
-  text-align:center;
-  cursor:pointer;
-  box-shadow:0 2px 5px rgba(0,0,0,0.08);
-  transition:0.2s;
+  background:white;padding:25px 20px;border-radius:14px;
+  text-align:center;cursor:pointer;
+  box-shadow:0 2px 5px rgba(0,0,0,.08)
 }
-.card:hover{ background:#eef3fa; }
-.card i{ font-size:30px; color:#0B3D91; margin-bottom:10px; }
-.card span{ display:block; font-weight:500; }
+.card i{font-size:30px;color:#0B3D91;margin-bottom:10px}
 
-/* Back Button */
-.back{
-  margin-bottom:15px;
-  cursor:pointer;
-  color:#0B3D91;
-  font-weight:bold;
-}
-
-/* Quiz */
+/* QUIZ */
 .quiz-container{
-  background:white;
-  padding:20px;
-  border-radius:12px;
-  max-width:700px;
-  margin:20px auto;
-  box-shadow:0 2px 8px rgba(0,0,0,0.1);
-}
-.question{
-  font-weight:bold;
-  margin-bottom:10px;
+  background:white;padding:20px;border-radius:12px;
+  max-width:700px;margin:20px auto
 }
 .options button{
-  display:block;
-  width:100%;
-  text-align:left;
-  margin-bottom:10px;
-  padding:12px;
-  border:none;
-  border-radius:8px;
-  background:#eef3fa;
-  cursor:pointer;
-  transition:0.2s;
+  width:100%;padding:12px;margin-bottom:10px;
+  border:none;border-radius:8px;background:#eef3fa
 }
-.options button:hover{ background:#d6e0f5; }
-.options button.correct{ background:#4caf50; color:white; }
-.options button.wrong{ background:#f44336; color:white; }
+.options button.correct{background:#4caf50;color:white}
+.options button.wrong{background:#f44336;color:white}
 .next-btn{
-  margin-top:10px;
-  padding:10px 18px;
-  background:#0B3D91;
-  color:white;
-  border:none;
-  border-radius:8px;
-  cursor:pointer;
-  float:right;
+  float:right;padding:10px 18px;
+  background:#0B3D91;color:white;
+  border:none;border-radius:8px
 }
-.score-display{
-  font-size:18px;
-  font-weight:bold;
-  text-align:center;
-  margin-top:10px;
+.timer{
+  font-weight:bold;color:#0B3D91;margin-bottom:10px;text-align:right;
+}
+.progress{
+  font-weight:bold;margin-bottom:10px;color:#0B3D91;
 }
 
-/* Timer */
-.timer{
-  font-weight:bold;
-  color:#0B3D91;
-  margin-bottom:10px;
-  text-align:right;
+/* LOADER */
+#loadingScreen{
+  position:fixed;inset:0;
+  background:#0B3D91;
+  display:flex;align-items:center;justify-content:center;
+  z-index:3000
 }
+.loader{
+  width:45px;height:45px;
+  border:5px solid rgba(255,255,255,.3);
+  border-top:5px solid white;
+  border-radius:50%;
+  animation:spin 1s linear infinite
+}
+@keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
+
 <body>
 
-<!-- Sidebar -->
+<!-- LOADING -->
+<div id="loadingScreen"><div class="loader"></div></div>
+
+<!-- OVERLAY -->
+<div id="menuOverlay"></div>
+
+<!-- SIDEBAR -->
 <div id="sideMenu" class="menu">
-  <div class="menu-top">
-    <img src="assets/logo.png" class="menu-logo">
-  </div>
-  <a href="dashboard.html"><i class="fa-solid fa-house"></i>Dashboard</a>
-  <a href="contact.html"><i class="fa-solid fa-phone"></i>Contact Us</a>
-  <a href="motivation.html"><i class="fa-solid fa-lightbulb"></i>Motivation</a>
-  <a href="calculator.html"><i class="fa-solid fa-calculator"></i>Calculator</a>
+  <a href="dashboard.html"><i class="fa fa-home"></i>Dashboard</a>
+  <a href="result.html"><i class="fa fa-home"></i>Results</a>
+  <a href="#"><i class="fa fa-chart-line"></i>Results</a>
 </div>
 
-<!-- Header -->
+<!-- HEADER -->
 <div class="header">
-  <div class="hamburger"><i class="fa-solid fa-bars"></i></div>
-  <div class="logout"><i class="fa-solid fa-power-off"></i></div>
-  <div class="title">Learn with GPT</div>
-  <div class="welcome">Welcome, <strong id="username"></strong></div>
+  <div class="hamburger"><i class="fa fa-bars"></i></div>
+  <div class="logout"><i class="fa fa-power-off"></i></div>
+  <div class="title">Learn with Smarthub</div>
+  <div class="welcome">Welcome, <span id="username">Student</span></div>
 </div>
 
 <div class="content">
 
-  <!-- COURSES -->
-  <div id="coursesView">
-    <div class="grid">
-      <div class="card" onclick="openTopics('MA110')"><i class="fa-solid fa-square-root-variable"></i><span>MA110 - Mathematics</span></div>
-      <div class="card" onclick="openTopics('CH110')"><i class="fa-solid fa-flask"></i><span>CH110 - Chemistry</span></div>
-      <div class="card" onclick="openTopics('PH110')"><i class="fa-solid fa-atom"></i><span>PH110 - Physics</span></div>
-      <div class="card" onclick="openTopics('BI110')"><i class="fa-solid fa-dna"></i><span>BI110 - Biology</span></div>
-      <div class="card" onclick="openTopics('CS110')"><i class="fa-solid fa-code"></i><span>CS110 - Programming</span></div>
-      <div class="card" onclick="openTopics('LA110')"><i class="fa-solid fa-pen-nib"></i><span>LA110 - Communication</span></div>
+  <div id="courseView">
+    <div class="card" onclick="startQuiz()">
+      <i class="fa fa-atom"></i>
+      <span>PH110 – Units And Measurements</span>
     </div>
   </div>
 
-  <!-- TOPICS -->
-  <div id="topicsView" style="display:none;">
-    <div class="back" onclick="goBack()">← Back to Courses</div>
-    <h3 id="courseTitle"></h3>
-    <div id="topicsGrid" class="grid"></div>
-  </div>
-
-  <!-- QUIZ -->
-  <div id="quizView" style="display:none;">
-    <div class="back" onclick="goBackToTopics()">← Back to Topics</div>
+  <div id="quizView" style="display:none">
     <div class="quiz-container">
-      <div class="timer" id="timer">Time Left: 0s</div>
-      <div class="question" id="questionText"></div>
-      <div class="options" id="optionsButtons"></div>
-      <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Next</button>
-      <div class="score-display" id="scoreDisplay" style="display:none;"></div>
+      <div class="timer" id="timer">Time left: 20:00</div>
+      <div class="progress" id="progress"></div>
+      <div id="questionText"></div>
+      <div id="options" class="options"></div>
+      <button class="next-btn" onclick="nextQuestion()">Next</button>
+      <div id="scoreDisplay"></div>
     </div>
   </div>
 
 </div>
 
 <script>
-/* Sample Quiz Questions per topic */
-const quizData={
-  "MA110-Algebra":[
-    {q:"2 + 2 =", options:["3","4","5","6"], answer:1},
-    {q:"5 x 3 =", options:["15","10","20","25"], answer:0},
-    {q:"Simplify: 3x + 2x =", options:["5x","6x","x","None"], answer:0}
-  ],
-  "CH110-Atomic Structure":[
-    {q:"Protons have a charge of?", options:["0","+1","-1","+2"], answer:1},
-    {q:"Electrons are found in?", options:["Nucleus","Orbitals","Protons","Neutrons"], answer:1}
-  ],
-  "PH110-Motion":[
-    {q:"Acceleration formula?", options:["v/t","s/t","v-u/t","s*v"], answer:2}
-  ],
-  "BI110-Cell Structure":[
-    {q:"Cell membrane is made of?", options:["Lipids","Proteins","Carbs","All"], answer:3}
-  ],
-  "CS110-Programming Basics":[
-    {q:"JS stands for?", options:["JavaScript","Java","JustScript","JScript"], answer:0}
-  ],
-  "LA110-Writing Skills":[
-    {q:"Formal letter starts with?", options:["Dear Sir/Madam","Hey","Yo","Hi"], answer:0}
+firebase.initializeApp({
+  apiKey: "AIzaSyB7e9k4jB4sVDpqK0wKdY1GK3wEI8fFck4",
+  authDomain: "smarthub-ff357.firebaseapp.com",
+  databaseURL: "https://smarthub-ff357-default-rtdb.firebaseio.com",
+  projectId: "smarthub-ff357",
+  storageBucket: "smarthub-ff357.appspot.com",
+  messagingSenderId: "794427490398",
+  appId: "1:794427490398:web:3350b0927dfc62d30134cf",
+  measurementId: "G-7FZTLSB4LG"
+});
+
+const db=firebase.firestore();
+const auth=firebase.auth();
+
+let currentUserId="", currentUserName="Student";
+let index=0, score=0;
+let timerValue=1200, timerInterval; // 20 minutes countdown in seconds
+
+/* MENU */
+const menu=document.getElementById("sideMenu");
+const overlay=document.getElementById("menuOverlay");
+document.querySelector(".hamburger").onclick=()=>{
+  menu.classList.add("open");
+  overlay.classList.add("show");
+};
+overlay.onclick=()=>{
+  menu.classList.remove("open");
+  overlay.classList.remove("show");
+};
+
+/* LOGOUT */
+document.querySelector(".logout").onclick=()=>auth.signOut();
+
+/* QUIZ DATA */
+const quiz = {
+  course:"PH110",
+  title:"Tutorial Sheet 1 - Physics",
+  questions:[
+    {q:"1. A body is moving with constant velocity v = (20 ± 0.4) m/s. Calculate its displacement with error limit after a time t = (10 ± 0.2) s.",
+     options:["200 ± 2 m","200 ± 6 m","200 ± 4 m","200 ± 0.6 m"],answer:2},
+    {q:"2. Determine the number of significant figures in 0.00456.",options:["2","3","4","5"],answer:1},
+    {q:"3. Determine the number of significant figures in 123.450.",options:["5","6","4","3"],answer:1},
+    {q:"4. Determine the number of significant figures in 50.0.",options:["1","2","3","4"],answer:2},
+    {q:"5. Determine the number of significant figures in 1500.",options:["2","3","4","1"],answer:0},
+    {q:"6. Determine the number of significant figures in 100.",options:["1","2","3","0"],answer:0},
+    {q:"7. The length of a rod measured in an experiment: 2.48 m, 2.46 m, 2.49 m, 2.50 m, 2.48 m. Find the average length and mean absolute error.",options:["Average = 2.482 m, Error = ±0.016 m","Average = 2.482 m, Error = ±0.012 m","Average = 2.48 m, Error = ±0.02 m","Average = 2.48 m, Error = ±0.01 m"],answer:0},
+    {q:"8. State the dimensions of velocity.",options:["LT⁻¹","MLT⁻¹","L/T²","M⁰L¹T⁰"],answer:0},
+    {q:"9. State the dimensions of force.",options:["MLT⁻¹","MLT⁻²","M²LT⁻²","ML²T⁻²"],answer:1},
+    {q:"10. Does the equation T = 2π√(l/g) obey homogeneity?",options:["Yes","No","Only for l = 1 m","Cannot determine"],answer:0},
+    {q:"11. Using dimensional analysis, the wavelength λ associated with a moving particle depends on mass m, velocity v, and Planck's constant h. Show λ ∝ ?",options:["h / mv","mv / h","h * mv","m / hv"],answer:0},
+    {q:"12. Derive the relationship for the period T of a simple pendulum in terms of its length l and acceleration due to gravity g.",options:["T ∝ √(l/g)","T ∝ √(g/l)","T ∝ l²/g","T ∝ g/l²"],answer:0},
+    {q:"13. Centripetal force F acting on a particle moving in a circle depends on mass m, velocity v, and radius r. Derive the formula using dimensional analysis.",options:["F ∝ mv²/r","F ∝ mr²/v","F ∝ mv/r²","F ∝ m²v/r"],answer:0},
+    {q:"14. In Q = I t, where Q is electric charge, I is current, and t is time, the dimensions of Q are:",options:["IT","I/T","I²T","I√T"],answer:0},
+    {q:"15. Viscosity η of a gas depends on mass m, diameter d, and mean speed v. Use dimensional analysis to find an expression for η.",options:["η ∝ √(mv)/d","η ∝ md/v","η ∝ mv/d²","η ∝ m²v/d"],answer:0},
+    {q:"16. Work W = F × v. Use dimensional analysis to check if correct.",options:["Incorrect: dimensions of W ≠ F × v","Correct: dimensions match","Correct only if v = 1 m/s","Cannot determine"],answer:0},
+    {q:"17. For v = at² + bt + c, find SI units of constants a, b, and c.",options:["a: L/T², b: L/T, c: L","a: L/T³, b: L/T², c: L/T","a: L/T², b: L/T², c: L","a: L/T, b: L/T², c: L²"],answer:1},
+    {q:"18. In gas equation (p + a/v²)(v - b) = RT, dimensions of a and b are?",options:["a: ML⁻¹T⁻², b: L³","a: ML²T⁻², b: L²","a: MLT⁻¹, b: L³","a: ML⁻²T⁻², b: L³"],answer:0},
+    {q:"19. Express the following in terms of prefixes: 0.00085 l, 5.44 × 10⁻¹¹ g, 73,000,000 m, 9.450 s.",options:["0.85 mL, 54.4 pg, 73 Mm, 9.45 s","0.85 mL, 5.44 ng, 73 Mm, 9.45 s","0.85 L, 54.4 pg, 73 km, 9.45 s","0.85 L, 54.4 ng, 73 Mm, 9.45 s"],answer:0}
   ]
 };
 
-/* DOM elements */
-const coursesView = document.getElementById("coursesView");
-const topicsView = document.getElementById("topicsView");
-const quizView = document.getElementById("quizView");
-const topicsGrid = document.getElementById("topicsGrid");
-const courseTitle = document.getElementById("courseTitle");
-const questionText = document.getElementById("questionText");
-const optionsButtons = document.getElementById("optionsButtons");
-const nextBtn = document.getElementById("nextBtn");
-const scoreDisplay = document.getElementById("scoreDisplay");
-const timerDisplay = document.getElementById("timer");
-
-let currentCourse="", currentTopic="", currentQuiz=[], currentQIndex=0, score=0;
-let timeLeft=60; // total time in seconds
-let quizTimer;
-
-/* Hamburger */
-const sideMenu = document.getElementById("sideMenu");
-const hamburger = document.querySelector('.hamburger');
-hamburger.onclick = ()=>{ sideMenu.classList.toggle('open'); };
-document.addEventListener('click', e=>{
-  if(!sideMenu.contains(e.target) && !hamburger.contains(e.target)) sideMenu.classList.remove('open');
+// AUTH & LOAD USER
+auth.onAuthStateChanged(user=>{
+  if(!user){
+    window.location.href="login.html";
+    return;
+  }
+  currentUserId=user.uid;
+  db.collection("users").doc(user.uid).get()
+    .then(doc=>{
+      if(doc.exists) currentUserName=doc.data().fullName;
+      document.getElementById("username").innerText=currentUserName;
+      loadProgress();
+    })
+    .catch(()=>document.getElementById("loadingScreen").style.display="none");
 });
 
-/* Logout */
-document.querySelector(".logout").onclick = ()=>{ window.location.href="login.html"; };
-
-/* Open Topics */
-function openTopics(course){
-  coursesView.style.display="none";
-  topicsView.style.display="block";
-  currentCourse = course;
-  courseTitle.innerText = course + " Topics";
-  topicsGrid.innerHTML="";
-  
-  const topics = Object.keys(quizData).filter(k=>k.startsWith(course+"-"));
-  topics.forEach(t=>{
-    const topicName = t.split("-")[1];
-    const card = document.createElement("div");
-    card.className="card";
-    card.innerHTML=`<i class="fa-solid fa-question"></i><span>${topicName}</span>`;
-    card.onclick=()=>{ startQuiz(t); };
-    topicsGrid.appendChild(card);
-  });
+// LOAD PROGRESS
+function loadProgress(){
+  db.collection("results")
+    .where("userId","==",currentUserId)
+    .where("quizTitle","==",quiz.title)
+    .limit(1)
+    .get()
+    .then(snapshot=>{
+      if(!snapshot.empty){
+        const data=snapshot.docs[0].data();
+        index=data.currentQuestion || 0;
+        score=data.currentScore || 0;
+        timerValue=data.remainingTime || 1400;
+        alert("Resuming your previous quiz...");
+      }
+      document.getElementById("loadingScreen").style.display="none";
+    });
 }
 
-/* Back */
-function goBack(){
-  topicsView.style.display="none";
-  coursesView.style.display="block";
-}
-function goBackToTopics(){
-  quizView.style.display="none";
-  topicsView.style.display="block";
-  clearInterval(quizTimer);
-}
-
-/* Quiz Functions */
-function startQuiz(topic){
-  currentTopic = topic;
-  currentQuiz = quizData[topic];
-  currentQIndex=0;
-  score=0;
-  timeLeft=60; // reset timer per quiz
-  topicsView.style.display="none";
-  quizView.style.display="block";
-  scoreDisplay.style.display="none";
-  nextBtn.style.display="inline-block";
-  startTimer();
+// START QUIZ
+function startQuiz(){
+  document.getElementById("courseView").style.display="none";
+  document.getElementById("quizView").style.display="block";
   showQuestion();
+  startTimer();
 }
 
-function startTimer(){
-  clearInterval(quizTimer);
-  timerDisplay.innerText=`Time Left: ${timeLeft}s`;
-  quizTimer = setInterval(()=>{
-    timeLeft--;
-    timerDisplay.innerText=`Time Left: ${timeLeft}s`;
-    if(timeLeft<=0){
-      clearInterval(quizTimer);
-      alert(`Time's up! Your Score: ${score} / ${currentQuiz.length}`);
-      showScore();
-    }
-  }, 1000);
-}
-
+// SHOW QUESTION
 function showQuestion(){
-  const q = currentQuiz[currentQIndex];
-  questionText.innerText = q.q;
-  optionsButtons.innerHTML = "";
-  q.options.forEach((opt,i)=>{
-    const btn = document.createElement("button");
-    btn.innerText=opt;
-    btn.onclick = ()=>{ selectOption(i); };
-    optionsButtons.appendChild(btn);
+  const q=quiz.questions[index];
+  document.getElementById("questionText").innerText=q.q;
+  const opt=document.getElementById("options");
+  opt.innerHTML="";
+  q.options.forEach((o,i)=>{
+    const b=document.createElement("button");
+    b.innerText=o;
+    b.onclick=()=>selectOption(i);
+    opt.appendChild(b);
   });
+  document.getElementById("progress").innerText=`Question ${index+1} / ${quiz.questions.length}`;
 }
 
-function selectOption(index){
-  const q = currentQuiz[currentQIndex];
-  const btns = optionsButtons.querySelectorAll("button");
-  btns.forEach((b,i)=>{
+// SELECT OPTION
+function selectOption(i){
+  const q=quiz.questions[index];
+  const btns=document.querySelectorAll(".options button");
+  btns.forEach((b,x)=>{
     b.disabled=true;
-    if(i===q.answer) b.classList.add("correct");
-    if(i===index && i!==q.answer) b.classList.add("wrong");
+    if(x===q.answer) b.classList.add("correct");
+    if(x===i && i!==q.answer) b.classList.add("wrong");
   });
-  if(index===q.answer) score++;
+  if(i===q.answer) score++;
+  saveProgress();
 }
 
+// NEXT QUESTION
 function nextQuestion(){
-  currentQIndex++;
-  if(currentQIndex<currentQuiz.length){
-    showQuestion();
-  } else {
-    clearInterval(quizTimer);
-    showScore();
-  }
+  index++;
+  if(index<quiz.questions.length) showQuestion();
+  else finishQuiz();
 }
 
-function showScore(){
-  questionText.innerText="";
-  optionsButtons.innerHTML="";
-  nextBtn.style.display="none";
-  scoreDisplay.style.display="block";
-  scoreDisplay.innerText=`Your Score: ${score} / ${currentQuiz.length}`;
+// TIMER
+function startTimer(){
+  clearInterval(timerInterval);
+  updateTimerDisplay();
+  timerInterval=setInterval(()=>{
+    timerValue--;
+    updateTimerDisplay();
+    saveProgress();
+    if(timerValue<=0){
+      clearInterval(timerInterval);
+      finishQuiz();
+    }
+  },1000);
+}
+
+function updateTimerDisplay(){
+  const m=Math.floor(timerValue/60);
+  const s=timerValue%60;
+  document.getElementById("timer").innerText=`Time left: ${m}:${s<10?'0'+s:s}`;
+}
+
+// SAVE PROGRESS
+function saveProgress(){
+  db.collection("results").doc(currentUserId+"_"+quiz.title).set({
+    userId:currentUserId,
+    studentName:currentUserName,
+    quizTitle:quiz.title,
+    course:quiz.course,
+    currentQuestion:index,
+    currentScore:score,
+    remainingTime:timerValue,
+    total:quiz.questions.length,
+    submitted:false,
+    updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+  },{merge:true});
+}
+
+// FINISH QUIZ
+function finishQuiz(){
+  clearInterval(timerInterval);
+  db.collection("results").doc(currentUserId+"_"+quiz.title).set({
+    userId:currentUserId,
+    studentName:currentUserName,
+    quizTitle:quiz.title,
+    course:quiz.course,
+    finalScore:score,
+    total:quiz.questions.length,
+    submitted:true,
+    completedAt:firebase.firestore.FieldValue.serverTimestamp()
+  },{merge:true});
+  document.getElementById("quizView").innerHTML=`<h2>Score: ${score}/${quiz.questions.length}</h2>`;
 }
 </script>
 
