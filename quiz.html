@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,333 +7,217 @@
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-<!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
 <style>
 body{margin:0;font-family:Arial,sans-serif;background:#f4f6f8}
-
-/* HEADER */
-.header{
-  background:#0B3D91;color:white;
-  padding:15px 20px 25px;
-  border-bottom-left-radius:22px;
-  border-bottom-right-radius:22px;
-  position:relative;text-align:center
-}
-.hamburger{position:absolute;left:20px;top:18px;font-size:22px;cursor:pointer}
-.logout{position:absolute;right:20px;top:18px;font-size:20px;cursor:pointer}
-.title{font-size:20px;font-weight:bold}
-.welcome{font-size:14px;margin-top:5px}
-
-/* SIDEBAR */
-.menu{
-  position:fixed;top:0;left:0;width:260px;height:100%;
-  background:white;box-shadow:2px 0 6px rgba(0,0,0,.2);
-  transform:translateX(-100%);transition:.3s;z-index:1000
-}
-.menu.open{transform:translateX(0)}
-.menu a{display:block;padding:15px 20px;text-decoration:none;color:#333}
-.menu a i{margin-right:10px;color:#0B3D91}
-
-/* OVERLAY */
-#menuOverlay{
-  position:fixed;inset:0;
-  background:rgba(0,0,0,.4);
-  display:none;z-index:999
-}
-#menuOverlay.show{display:block}
-
-/* CONTENT */
+.header{background:#0B3D91;color:white;padding:15px 20px 25px;border-bottom-left-radius:22px;border-bottom-right-radius:22px;text-align:center}
 .content{padding:20px}
-
-/* CARD */
-.card{
-  background:white;padding:25px 20px;border-radius:14px;
-  text-align:center;cursor:pointer;
-  box-shadow:0 2px 5px rgba(0,0,0,.08)
-}
-.card i{font-size:30px;color:#0B3D91;margin-bottom:10px}
-
-/* QUIZ */
-.quiz-container{
-  background:white;padding:20px;border-radius:12px;
-  max-width:700px;margin:20px auto
-}
-.options button{
-  width:100%;padding:12px;margin-bottom:10px;
-  border:none;border-radius:8px;background:#eef3fa
-}
+.card{background:white;padding:25px;border-radius:14px;text-align:center;cursor:pointer;box-shadow:0 2px 5px rgba(0,0,0,.1);margin-bottom:15px;position:relative}
+.card i{font-size:30px;margin-bottom:10px}
+.quiz-container{background:white;padding:20px;border-radius:12px;max-width:800px;margin:auto}
+.options button{width:100%;padding:12px;margin-bottom:10px;border:none;border-radius:8px;background:#eef3fa;cursor:pointer}
 .options button.correct{background:#4caf50;color:white}
 .options button.wrong{background:#f44336;color:white}
-.next-btn{
-  float:right;padding:10px 18px;
-  background:#0B3D91;color:white;
-  border:none;border-radius:8px
-}
-.timer{
-  font-weight:bold;color:#0B3D91;margin-bottom:10px;text-align:right;
-}
-.progress{
-  font-weight:bold;margin-bottom:10px;color:#0B3D91;
-}
-
-/* LOADER */
-#loadingScreen{
-  position:fixed;inset:0;
-  background:#0B3D91;
-  display:flex;align-items:center;justify-content:center;
-  z-index:3000
-}
-.loader{
-  width:45px;height:45px;
-  border:5px solid rgba(255,255,255,.3);
-  border-top:5px solid white;
-  border-radius:50%;
-  animation:spin 1s linear infinite
-}
-@keyframes spin{to{transform:rotate(360deg)}}
+.next-btn{padding:10px 18px;background:#0B3D91;color:white;border:none;border-radius:8px;cursor:pointer}
+.timer{text-align:right;font-weight:bold;color:#0B3D91}
+.progress{margin-bottom:10px;font-weight:bold;color:#0B3D91}
+.score-tag{position:absolute;top:10px;right:20px;font-weight:bold;color:#0B3D91}
+.redo-btn{padding:5px 10px;background:#0B3D91;color:white;border:none;border-radius:6px;cursor:pointer;margin-top:10px;display:inline-block}
+.pending-tag{padding:5px 10px;border-radius:6px;margin-top:10px;display:inline-block;color:white}
+.pending-tag.pending{background:orange;}
+.pending-tag.approved{background:green;}
 </style>
 </head>
 
 <body>
 
-<!-- LOADING -->
-<div id="loadingScreen"><div class="loader"></div></div>
-
-<!-- OVERLAY -->
-<div id="menuOverlay"></div>
-
-<!-- SIDEBAR -->
-<div id="sideMenu" class="menu">
-  <a href="dashboard.html"><i class="fa fa-home"></i>Dashboard</a>
-  <a href="result.html"><i class="fa fa-home"></i>Results</a>
-  <a href="#"><i class="fa fa-chart-line"></i>Results</a>
-</div>
-
-<!-- HEADER -->
 <div class="header">
-  <div class="hamburger"><i class="fa fa-bars"></i></div>
-  <div class="logout"><i class="fa fa-power-off"></i></div>
-  <div class="title">Learn with Smarthub</div>
-  <div class="welcome">Welcome, <span id="username">Student</span></div>
+  <h3>Learn with Smarthub</h3>
+  <p>Welcome, <span id="username">Student</span></p>
 </div>
 
 <div class="content">
-
-  <div id="courseView">
-    <div class="card" onclick="startQuiz()">
-      <i class="fa fa-atom"></i>
-      <span>PH110 – Units And Measurements</span>
-    </div>
-  </div>
-
-  <div id="quizView" style="display:none">
-    <div class="quiz-container">
-      <div class="timer" id="timer">Time left: 20:00</div>
-      <div class="progress" id="progress"></div>
-      <div id="questionText"></div>
-      <div id="options" class="options"></div>
-      <button class="next-btn" onclick="nextQuestion()">Next</button>
-      <div id="scoreDisplay"></div>
-    </div>
-  </div>
-
+  <div id="courseView"></div>
+  <div id="quizView" style="display:none"></div>
 </div>
 
 <script>
 firebase.initializeApp({
   apiKey: "AIzaSyB7e9k4jB4sVDpqK0wKdY1GK3wEI8fFck4",
   authDomain: "smarthub-ff357.firebaseapp.com",
-  databaseURL: "https://smarthub-ff357-default-rtdb.firebaseio.com",
-  projectId: "smarthub-ff357",
-  storageBucket: "smarthub-ff357.appspot.com",
-  messagingSenderId: "794427490398",
-  appId: "1:794427490398:web:3350b0927dfc62d30134cf",
-  measurementId: "G-7FZTLSB4LG"
+  projectId: "smarthub-ff357"
 });
 
-const db=firebase.firestore();
-const auth=firebase.auth();
+const db = firebase.firestore();
+const auth = firebase.auth();
 
 let currentUserId="", currentUserName="Student";
-let index=0, score=0;
-let timerValue=1200, timerInterval; // 20 minutes countdown in seconds
-
-/* MENU */
-const menu=document.getElementById("sideMenu");
-const overlay=document.getElementById("menuOverlay");
-document.querySelector(".hamburger").onclick=()=>{
-  menu.classList.add("open");
-  overlay.classList.add("show");
-};
-overlay.onclick=()=>{
-  menu.classList.remove("open");
-  overlay.classList.remove("show");
-};
-
-/* LOGOUT */
-document.querySelector(".logout").onclick=()=>auth.signOut();
+let index=0, score=0, timer=1200, interval;
 
 /* QUIZ DATA */
-const quiz = {
-  course:"PH110",
-  title:"Tutorial Sheet 1 - Physics",
-  questions:[
-    {q:"1. A body is moving with constant velocity v = (20 ± 0.4) m/s. Calculate its displacement with error limit after a time t = (10 ± 0.2) s.",
-     options:["200 ± 2 m","200 ± 6 m","200 ± 4 m","200 ± 0.6 m"],answer:2},
-    {q:"2. Determine the number of significant figures in 0.00456.",options:["2","3","4","5"],answer:1},
-    {q:"3. Determine the number of significant figures in 123.450.",options:["5","6","4","3"],answer:1},
-    {q:"4. Determine the number of significant figures in 50.0.",options:["1","2","3","4"],answer:2},
-    {q:"5. Determine the number of significant figures in 1500.",options:["2","3","4","1"],answer:0},
-    {q:"6. Determine the number of significant figures in 100.",options:["1","2","3","0"],answer:0},
-    {q:"7. The length of a rod measured in an experiment: 2.48 m, 2.46 m, 2.49 m, 2.50 m, 2.48 m. Find the average length and mean absolute error.",options:["Average = 2.482 m, Error = ±0.016 m","Average = 2.482 m, Error = ±0.012 m","Average = 2.48 m, Error = ±0.02 m","Average = 2.48 m, Error = ±0.01 m"],answer:0},
-    {q:"8. State the dimensions of velocity.",options:["LT⁻¹","MLT⁻¹","L/T²","M⁰L¹T⁰"],answer:0},
-    {q:"9. State the dimensions of force.",options:["MLT⁻¹","MLT⁻²","M²LT⁻²","ML²T⁻²"],answer:1},
-    {q:"10. Does the equation T = 2π√(l/g) obey homogeneity?",options:["Yes","No","Only for l = 1 m","Cannot determine"],answer:0},
-    {q:"11. Using dimensional analysis, the wavelength λ associated with a moving particle depends on mass m, velocity v, and Planck's constant h. Show λ ∝ ?",options:["h / mv","mv / h","h * mv","m / hv"],answer:0},
-    {q:"12. Derive the relationship for the period T of a simple pendulum in terms of its length l and acceleration due to gravity g.",options:["T ∝ √(l/g)","T ∝ √(g/l)","T ∝ l²/g","T ∝ g/l²"],answer:0},
-    {q:"13. Centripetal force F acting on a particle moving in a circle depends on mass m, velocity v, and radius r. Derive the formula using dimensional analysis.",options:["F ∝ mv²/r","F ∝ mr²/v","F ∝ mv/r²","F ∝ m²v/r"],answer:0},
-    {q:"14. In Q = I t, where Q is electric charge, I is current, and t is time, the dimensions of Q are:",options:["IT","I/T","I²T","I√T"],answer:0},
-    {q:"15. Viscosity η of a gas depends on mass m, diameter d, and mean speed v. Use dimensional analysis to find an expression for η.",options:["η ∝ √(mv)/d","η ∝ md/v","η ∝ mv/d²","η ∝ m²v/d"],answer:0},
-    {q:"16. Work W = F × v. Use dimensional analysis to check if correct.",options:["Incorrect: dimensions of W ≠ F × v","Correct: dimensions match","Correct only if v = 1 m/s","Cannot determine"],answer:0},
-    {q:"17. For v = at² + bt + c, find SI units of constants a, b, and c.",options:["a: L/T², b: L/T, c: L","a: L/T³, b: L/T², c: L/T","a: L/T², b: L/T², c: L","a: L/T, b: L/T², c: L²"],answer:1},
-    {q:"18. In gas equation (p + a/v²)(v - b) = RT, dimensions of a and b are?",options:["a: ML⁻¹T⁻², b: L³","a: ML²T⁻², b: L²","a: MLT⁻¹, b: L³","a: ML⁻²T⁻², b: L³"],answer:0},
-    {q:"19. Express the following in terms of prefixes: 0.00085 l, 5.44 × 10⁻¹¹ g, 73,000,000 m, 9.450 s.",options:["0.85 mL, 54.4 pg, 73 Mm, 9.45 s","0.85 mL, 5.44 ng, 73 Mm, 9.45 s","0.85 L, 54.4 pg, 73 km, 9.45 s","0.85 L, 54.4 ng, 73 Mm, 9.45 s"],answer:0}
-  ]
+const quiz={
+ title:"Tutorial Sheet 1 - Physics",
+ course:"PH110",
+ questions:[
+  {q:"1. A body is moving with constant velocity v = (20 ± 0.4) m/s. Calculate its displacement with error limit after time t = (10 ± 0.2) s.",options:["200 ± 2 m","200 ± 6 m","200 ± 4 m","200 ± 0.6 m"],answer:2},
+  {q:"2. Number of significant figures in 0.00456?",options:["2","3","4","5"],answer:1},
+  {q:"3. Number of significant figures in 123.450?",options:["5","6","4","3"],answer:1},
+  {q:"4. Number of significant figures in 50.0?",options:["1","2","3","4"],answer:2},
+  {q:"5. Number of significant figures in 1500?",options:["2","3","4","1"],answer:0},
+  {q:"6. Number of significant figures in 100?",options:["1","2","3","0"],answer:0},
+  {q:"7. Average length and mean error?",options:["2.482 ± 0.016 m","2.482 ± 0.012 m","2.48 ± 0.02 m","2.48 ± 0.01 m"],answer:0},
+  {q:"8. Dimensions of velocity?",options:["LT⁻¹","MLT⁻¹","LT⁻²","M⁰L¹T⁰"],answer:0},
+  {q:"9. Dimensions of force?",options:["MLT⁻¹","MLT⁻²","M²LT⁻²","ML²T⁻²"],answer:1},
+  {q:"10. Does T = 2π√(l/g) obey homogeneity?",options:["Yes","No","Only if l=1","Cannot determine"],answer:0},
+  {q:"11. de Broglie wavelength λ ∝ ?",options:["h/mv","mv/h","hmv","m/hv"],answer:0},
+  {q:"12. Period of simple pendulum?",options:["√(l/g)","√(g/l)","l²/g","g/l²"],answer:0},
+  {q:"13. Centripetal force formula?",options:["mv²/r","mr²/v","mv/r²","m²v/r"],answer:0},
+  {q:"14. Dimensions of electric charge?",options:["IT","I/T","I²T","I√T"],answer:0},
+  {q:"15. Viscosity η depends on m, d, v. η ∝ ?",options:["√(mv)/d","md/v","mv/d²","m²v/d"],answer:0},
+  {q:"16. Is W = F×v correct dimensionally?",options:["Incorrect","Correct","Only if v=1","Cannot determine"],answer:0},
+  {q:"17. Units of a, b, c in v = at² + bt + c?",options:["L/T³, L/T², L/T","L/T², L/T, L","L/T, L/T², L²","L/T³, L/T, L"],answer:1},
+  {q:"18. Dimensions of a and b in gas equation?",options:["a: ML⁻¹T⁻², b: L³","a: ML²T⁻², b: L²","a: MLT⁻¹, b: L³","a: ML⁻²T⁻², b: L³"],answer:0},
+  {q:"19. Express using prefixes",options:["0.85 mL, 54.4 pg, 73 Mm, 9.45 s","0.85 mL, 5.44 ng, 73 Mm, 9.45 s","0.85 L, 54.4 pg, 73 km, 9.45 s","0.85 L, 54.4 ng, 73 Mm, 9.45 s"],answer:0}
+ ]
 };
 
-// AUTH & LOAD USER
+/* AUTH */
 auth.onAuthStateChanged(user=>{
-  if(!user){
-    window.location.href="login.html";
-    return;
-  }
-  currentUserId=user.uid;
-  db.collection("users").doc(user.uid).get()
-    .then(doc=>{
-      if(doc.exists) currentUserName=doc.data().fullName;
-      document.getElementById("username").innerText=currentUserName;
-      loadProgress();
-    })
-    .catch(()=>document.getElementById("loadingScreen").style.display="none");
+ if(!user){location.href="login.html";return;}
+ currentUserId=user.uid;
+ currentUserName=user.displayName||"Student";
+ document.getElementById("username").innerText=currentUserName;
+ loadCourseCard();
 });
 
-// LOAD PROGRESS
-function loadProgress(){
-  db.collection("results")
-    .where("userId","==",currentUserId)
-    .where("quizTitle","==",quiz.title)
-    .limit(1)
-    .get()
-    .then(snapshot=>{
-      if(!snapshot.empty){
-        const data=snapshot.docs[0].data();
-        index=data.currentQuestion || 0;
-        score=data.currentScore || 0;
-        timerValue=data.remainingTime || 1400;
-        alert("Resuming your previous quiz...");
-      }
-      document.getElementById("loadingScreen").style.display="none";
-    });
-}
+/* REAL-TIME COURSE CARD */
+function loadCourseCard(){
+  const ref = db.collection("results").doc(currentUserId+"_"+quiz.title);
 
-// START QUIZ
-function startQuiz(){
-  document.getElementById("courseView").style.display="none";
-  document.getElementById("quizView").style.display="block";
-  showQuestion();
-  startTimer();
-}
+  // Listen in real-time
+  ref.onSnapshot(doc => {
+    let scoreText="", redoUI="";
 
-// SHOW QUESTION
-function showQuestion(){
-  const q=quiz.questions[index];
-  document.getElementById("questionText").innerText=q.q;
-  const opt=document.getElementById("options");
-  opt.innerHTML="";
-  q.options.forEach((o,i)=>{
-    const b=document.createElement("button");
-    b.innerText=o;
-    b.onclick=()=>selectOption(i);
-    opt.appendChild(b);
-  });
-  document.getElementById("progress").innerText=`Question ${index+1} / ${quiz.questions.length}`;
-}
-
-// SELECT OPTION
-function selectOption(i){
-  const q=quiz.questions[index];
-  const btns=document.querySelectorAll(".options button");
-  btns.forEach((b,x)=>{
-    b.disabled=true;
-    if(x===q.answer) b.classList.add("correct");
-    if(x===i && i!==q.answer) b.classList.add("wrong");
-  });
-  if(i===q.answer) score++;
-  saveProgress();
-}
-
-// NEXT QUESTION
-function nextQuestion(){
-  index++;
-  if(index<quiz.questions.length) showQuestion();
-  else finishQuiz();
-}
-
-// TIMER
-function startTimer(){
-  clearInterval(timerInterval);
-  updateTimerDisplay();
-  timerInterval=setInterval(()=>{
-    timerValue--;
-    updateTimerDisplay();
-    saveProgress();
-    if(timerValue<=0){
-      clearInterval(timerInterval);
-      finishQuiz();
+    // Initialize fields
+    let submitted=false, redoRequested=false, redoApproved=false, finalScore=0;
+    if(doc.exists){
+      const d = doc.data();
+      submitted = d.submitted || false;
+      redoRequested = d.redoRequested || false;
+      redoApproved = d.redoApproved || false;
+      finalScore = d.finalScore || 0;
     }
-  },1000);
+
+    // Determine UI
+    if(submitted){
+      scoreText = `<div class="score-tag">Score: ${finalScore}/${quiz.questions.length}</div>`;
+      if(redoApproved){
+        redoUI = `<div class="pending-tag approved">Approved</div>`;
+      } else if(redoRequested){
+        redoUI = `<div class="pending-tag pending">Pending</div>`;
+      } else {
+        redoUI = `<button class="redo-btn" onclick="requestRedo()">Redo</button>`;
+      }
+    }
+
+    document.getElementById("courseView").innerHTML =
+      `<div class="card" onclick="startQuiz()">
+         <i class="fa fa-atom"></i><br><br>
+         <b>${quiz.course} – ${quiz.title}</b>
+         ${scoreText}${redoUI}
+       </div>`;
+  });
 }
 
-function updateTimerDisplay(){
-  const m=Math.floor(timerValue/60);
-  const s=timerValue%60;
-  document.getElementById("timer").innerText=`Time left: ${m}:${s<10?'0'+s:s}`;
+/* START QUIZ */
+function startQuiz(){
+ const ref = db.collection("results").doc(currentUserId+"_"+quiz.title);
+ ref.get().then(doc=>{
+   if(!doc.exists){beginQuiz(); return;}
+   const d = doc.data();
+   if(d.submitted && !d.redoApproved){return;} // locked
+   if(d.redoApproved){
+     ref.update({redoApproved:false, redoRequested:false, submitted:false}).then(()=> beginQuiz());
+   }
+ });
 }
 
-// SAVE PROGRESS
-function saveProgress(){
-  db.collection("results").doc(currentUserId+"_"+quiz.title).set({
-    userId:currentUserId,
-    studentName:currentUserName,
-    quizTitle:quiz.title,
-    course:quiz.course,
-    currentQuestion:index,
-    currentScore:score,
-    remainingTime:timerValue,
-    total:quiz.questions.length,
-    submitted:false,
-    updatedAt:firebase.firestore.FieldValue.serverTimestamp()
-  },{merge:true});
+/* BEGIN QUIZ */
+function beginQuiz(){
+ index=0; score=0; timer=1200;
+ document.getElementById("courseView").style.display="none";
+ document.getElementById("quizView").style.display="block";
+ showQuestion(); startTimer();
 }
 
-// FINISH QUIZ
+/* SHOW QUESTION */
+function showQuestion(){
+ const q=quiz.questions[index];
+ let html=`<div class="quiz-container">
+ <div class="timer" id="timer"></div>
+ <div class="progress">Question ${index+1}/${quiz.questions.length}</div>
+ <h3>${q.q}</h3><div class="options">`;
+ q.options.forEach((o,i)=> html+=`<button onclick="selectOpt(${i})">${o}</button>`);
+ html+=`</div><button class="next-btn" onclick="nextQ()">Next</button></div>`;
+ document.getElementById("quizView").innerHTML=html;
+}
+
+/* SELECT OPTION */
+function selectOpt(i){
+ const q=quiz.questions[index];
+ document.querySelectorAll(".options button").forEach((b,x)=>{
+   b.disabled=true;
+   if(x===q.answer)b.classList.add("correct");
+   if(x===i && i!==q.answer)b.classList.add("wrong");
+ });
+ if(i===q.answer)score++;
+}
+
+/* NEXT QUESTION */
+function nextQ(){
+ index++;
+ if(index<quiz.questions.length) showQuestion();
+ else finishQuiz();
+}
+
+/* TIMER */
+function startTimer(){
+ interval=setInterval(()=>{
+   timer--;
+   document.getElementById("timer").innerText=
+     "Time left: "+Math.floor(timer/60)+":"+String(timer%60).padStart(2,"0");
+   if(timer<=0){clearInterval(interval); finishQuiz();}
+ },1000);
+}
+
+/* FINISH QUIZ */
 function finishQuiz(){
-  clearInterval(timerInterval);
-  db.collection("results").doc(currentUserId+"_"+quiz.title).set({
-    userId:currentUserId,
-    studentName:currentUserName,
-    quizTitle:quiz.title,
-    course:quiz.course,
-    finalScore:score,
-    total:quiz.questions.length,
-    submitted:true,
-    completedAt:firebase.firestore.FieldValue.serverTimestamp()
-  },{merge:true});
-  document.getElementById("quizView").innerHTML=`<h2>Score: ${score}/${quiz.questions.length}</h2>`;
+ clearInterval(interval);
+ db.collection("results").doc(currentUserId+"_"+quiz.title).set({
+   userId: currentUserId,
+   studentName: currentUserName,
+   quizTitle: quiz.title,
+   course: quiz.course,
+   finalScore: score,
+   total: quiz.questions.length,
+   submitted: true,
+   redoRequested: false,
+   redoApproved: false,
+   completedAt: firebase.firestore.FieldValue.serverTimestamp()
+ }, {merge:true}).then(()=>{
+   document.getElementById("quizView").style.display="none";
+   document.getElementById("courseView").style.display="block";
+ });
+}
+
+/* REQUEST REDO */
+function requestRedo(){
+ db.collection("results").doc(currentUserId+"_"+quiz.title).update({
+   redoRequested: true
+ });
 }
 </script>
 
