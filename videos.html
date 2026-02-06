@@ -3,291 +3,338 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SMART HUB</title>
+<title>Videos</title>
+
 <style>
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #e6f0ff; /* Light Blue */
-    margin: 0;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-    padding-top: 50px;
+body { margin:0; font-family: Arial,sans-serif; background:#f0f8ff; }
+
+header {
+    background:#0B3D91;
+    color:white;
+    padding:15px 20px;
+    display:flex;
+    align-items:center;
+    box-shadow:0 2px 6px rgba(0,0,0,0.2);
 }
+header h1 {
+    margin:0;
+    font-size:1.5em;
+    flex-grow:1;
+    text-align:center;
+}
+.back-symbol {
+    font-size:1.4em;
+    cursor:pointer;
+    margin-right:10px;
+    user-select:none;
+}
+
 .container {
-    background: #001f3f; /* Navy Blue */
-    padding: 30px;
-    border-radius: 15px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-    width: 450px;
-    max-width: 90%;
-    color: #fff;
-    text-align: center;
+    max-width:800px;
+    margin:20px auto;
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:16px;
 }
-h2 {
-    margin-bottom: 20px;
-    color: #b3d1ff; /* Light Blue */
+
+.button {
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:white;
+    color:#0B3D91;
+    padding:20px;
+    border:none;
+    border-radius:12px;
+    cursor:pointer;
+    font-size:16px;
+    font-weight:bold;
+    text-align:center;
+    box-shadow:0 3px 8px rgba(0,0,0,0.15);
+    transition: transform 0.2s, background 0.2s;
 }
-ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
+.button:hover {
+    transform:translateY(-3px);
+    background:#e6f2ff;
 }
-li {
-    margin: 10px 0;
+
+.file-card {
+    display:flex;
+    align-items:center;
+    background:white;
+    color:#0B3D91;
+    padding:15px 20px;
+    margin:6px 0;
+    border-radius:12px;
+    cursor:pointer;
+    font-size:16px;
+    font-weight:bold;
+    box-shadow:0 3px 8px rgba(0,0,0,0.15);
+    transition: transform 0.2s, background 0.2s;
+    grid-column:1 / -1;
 }
-a, .card {
-    display: block;
-    text-decoration: none;
-    color: #001f3f;
-    background: #b3d1ff;
-    padding: 12px 15px;
-    border-radius: 10px;
-    transition: 0.3s;
-    font-weight: bold;
-    cursor: pointer;
+.file-card:hover {
+    transform:translateY(-2px);
+    background:#e6f2ff;
 }
-a:hover, .card:hover {
-    background: #001f3f;
-    color: #b3d1ff;
-}
-.hidden { display: none; }
-.back-btn {
-    display: inline-block;
-    margin-bottom: 20px;
-    padding: 8px 15px;
-    border-radius: 8px;
-    background: #b3d1ff;
-    color: #001f3f;
-    cursor: pointer;
-    font-weight: bold;
-    transition:0.3s;
-    text-align: left;
-}
-.back-btn:hover {
-    background: #001f3f;
-    color: #b3d1ff;
-}
-.card-container {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-top: 10px;
-}
-/* Modal styles */
-.modal {
-    position: fixed;
+
+#previewContainer {
+    width:100%;
+    height:100vh;
+    position:fixed;
     top:0;
     left:0;
+    background:white;
+    display:none;
+    z-index:1000;
+}
+#previewContainer iframe {
     width:100%;
     height:100%;
-    background: rgba(0,0,0,0.95);
-    display:none;
-    justify-content:center;
-    align-items:center;
-    z-index:1000;
-    flex-direction:column;
-}
-.modal iframe, .modal video {
-    width: 100%;
-    border: none;
-    border-radius: 5px;
-}
-.modal iframe.doc-frame {
-    height: 100%;
-}
-.modal video {
-    height: 60%; /* Videos smaller initially */
-}
-.modal-controls {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    right: 10px;
-    display: flex;
-    gap: 10px;
-    z-index: 1001;
-}
-.modal-controls button {
-    padding: 8px 15px;
-    border-radius:8px;
     border:none;
-    font-weight:bold;
-    cursor:pointer;
-    background:#b3d1ff;
-    color:#001f3f;
-    transition:0.3s;
 }
-.modal-controls button:hover {
-    background:#001f3f;
-    color:#b3d1ff;
+#closePreview {
+    position:absolute;
+    top:10px;
+    right:10px;
+    background:#f44336;
+    color:white;
+    border:none;
+    padding:8px 12px;
+    border-radius:6px;
+    cursor:pointer;
+    z-index:1001;
+}
+#closePreview:hover {
+    background:#d32f2f;
 }
 </style>
 </head>
+
 <body>
 
-<div class="container">
+<header>
+    <span id="backBtn" class="back-symbol" style="display:none;">←</span>
+    <h1>Fincep Videos</h1>
+</header>
 
-<!-- PAGE 1: Term -->
-<div id="pageTerm">
-    <div class="back-btn" onclick="goToDashboard()">⬅ Back</div>
-    <h2>Select Term</h2>
-    <ul id="termList"></ul>
+<div class="container" id="content"></div>
+
+<div id="previewContainer">
+    <button id="closePreview">Close ✖</button>
+    <iframe id="previewIframe" allowfullscreen></iframe>
 </div>
 
-<!-- PAGE 2: Course -->
-<div id="pageCourse" class="hidden">
-    <div class="back-btn" onclick="goBack('term')">⬅ Back</div>
-    <h2>Select Course</h2>
-    <ul id="courseList"></ul>
-</div>
-
-<!-- PAGE 3: Topics / Files -->
-<div id="pageFiles" class="hidden">
-    <div class="back-btn" onclick="goBack('course')">⬅ Back</div>
-    <h2>Topics / Files</h2>
-    <div id="filesList" class="card-container"></div>
-</div>
-
-</div>
-
-<!-- Modal -->
-<div id="modal" class="modal">
-    <div class="modal-controls">
-        <button id="downloadBtn">Download 📥</button>
-        <button onclick="closeModal()">Close ✖</button>
-    </div>
-    <iframe id="modalFrame" class="hidden doc-frame" allowfullscreen></iframe>
-    <iframe id="modalVideo" class="hidden" allowfullscreen></iframe>
-</div>
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
-// Redirect to dashboard
-function goToDashboard(){
-    window.location.href = 'dashboard.html'; // Change if your dashboard URL is different
-}
+const firebaseConfig = {
+  apiKey: "AIzaSyCvL_D8wRVC3hS0mEvTt2J_D-LG7wFFpx0",
+  authDomain: "environmentalgpt-4974a.firebaseapp.com",
+  projectId: "environmentalgpt-4974a",
+  storageBucket: "environmentalgpt-4974a.firebasestorage.app",
+  messagingSenderId: "947094029861",
+  appId: "1:947094029861:web:ffa5c1ad4abff06d6e21cc",
+  measurementId: "G-36T3Y37DS4"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
-const docsc = {
-    "Term 1": {
-        "⚙️PH110": [{name:"▶️DIMENSIONAL ANALYSIS", link:"https://drive.google.com/file/d/1q6P6VOqNSvOParxbo6UO7-hbhely-qgW/preview", type:"video"}],
-        "⚗️CH110":[],
-        "🔣MA110": [{name:"▶️COMPLEX NUMBERS-Introductory Video",link:"https://drive.google.com/file/d/1YdOs9NzZcq9EMAoEgl1-XJ3nSzi0XDO6/preview", type:"video"}],
-        "📠LA111": [],
-        "🖥️CS110": []
-    },
-    "Term 2": {
-        "⚙️PH110": [
-            {name:"Physics Term2 Notes", link:"", type:"doc"}
-        ],
-        "⚗️CH110": [],
-        "🧬BI110": [],
-        "🔣MA110": [],
-        "📠LA111": [],
-        "🖥️CS110": []
-    },
-    "Term 3": {
-        "⚙️PH110": [],
-        "⚗️CH110": [],
-        "🧬BI110": [],
-        "🔣MA110": [],
-        "📠LA111": [],
-        "🖥️CS110": []
+// --- Predefined subjects ---
+const subjectsList = ["BI210","CH210","PH210","MA210","EN211","ED211"];
+
+let selectedSubject = null;
+let selectedGrade = null;
+let selectedMainTopic = null;
+
+const content = document.getElementById("content");
+const backBtn = document.getElementById("backBtn");
+const previewContainer = document.getElementById("previewContainer");
+const previewIframe = document.getElementById("previewIframe");
+const closePreview = document.getElementById("closePreview");
+
+closePreview.onclick = () => {
+    previewContainer.style.display = "none";
+    previewIframe.src = "";
+};
+
+backBtn.onclick = () => {
+    if(selectedMainTopic){
+        selectedMainTopic = null;
+        loadVideos();
+    } else if(selectedGrade){
+        selectedGrade = null;
+        loadVideos();
+    } else {
+        selectedSubject = null;
+        loadSubjects();
     }
 };
 
+// ---- SUBJECTS ----
+function loadSubjects(){
+    content.innerHTML = "";
+    backBtn.style.display = "none";
 
-// Selected
-let selectedTerm = "";
-let selectedCourse = "";
-
-// Pages
-const pageTerm = document.getElementById("pageTerm");
-const pageCourse = document.getElementById("pageCourse");
-const pageFiles = document.getElementById("pageFiles");
-
-const termList = document.getElementById("termList");
-const courseList = document.getElementById("courseList");
-const filesList = document.getElementById("filesList");
-
-// Modal
-const modal = document.getElementById("modal");
-const modalFrame = document.getElementById("modalFrame");
-const modalVideo = document.getElementById("modalVideo");
-const downloadBtn = document.getElementById("downloadBtn");
-
-// Populate Term
-Object.keys(docsc).forEach(term => {
-    const li = document.createElement("li");
-    li.innerHTML = `<a href="#">${term}</a>`;
-    li.onclick = () => { selectedTerm = term; showCourses(); };
-    termList.appendChild(li);
-});
-
-function showCourses(){
-    pageTerm.classList.add("hidden");
-    pageCourse.classList.remove("hidden");
-    courseList.innerHTML = "";
-    Object.keys(docsc[selectedTerm]).forEach(course => {
-        const li = document.createElement("li");
-        li.innerHTML = `<a href="#">${course}</a>`;
-        li.onclick = () => { selectedCourse = course; showFiles(); };
-        courseList.appendChild(li);
-    });
-}
-
-function showFiles(){
-    pageCourse.classList.add("hidden");
-    pageFiles.classList.remove("hidden");
-    filesList.innerHTML = "";
-    const topicFiles = docsc[selectedTerm][selectedCourse];
-    if(!topicFiles || topicFiles.length === 0){
-        filesList.innerHTML = "<div class='card'>No files available.</div>";
-        return;
-    }
-    topicFiles.forEach(f => {
-        const div = document.createElement("div");
-        div.className = "card";
-        div.innerHTML = `<p>${f.name} ${f.type==="doc"?"📄":"▶️"}</p>`;
-        div.onclick = () => openModal(f);
-        filesList.appendChild(div);
-    });
-}
-
-// Open Modal
-function openModal(f){
-    modal.style.display = "flex";
-    if(f.type==="doc"){
-        modalFrame.src = f.link;
-        modalFrame.classList.remove("hidden");
-        modalVideo.classList.add("hidden");
-        downloadBtn.style.display = "inline-block";
-        downloadBtn.onclick = () => {
-            const downloadLink = f.link.replace('/preview','/uc?export=download');
-            window.open(downloadLink,'_blank');
+    subjectsList.forEach(subject=>{
+        const btn = document.createElement("button");
+        btn.className = "button";
+        btn.textContent = subject;
+        btn.onclick = () => {
+            selectedSubject = subject;
+            loadVideos();
         };
+        content.appendChild(btn);
+    });
+}
+
+// ---- VIDEOS ----
+function loadVideos(){
+    content.innerHTML = "";
+    backBtn.style.display = "inline-block";
+
+    db.collection("videos")
+      .where("subject","==",selectedSubject)
+      .get()
+      .then(snapshot=>{
+        // If no videos uploaded yet
+        if(snapshot.empty && selectedSubject){
+            content.innerHTML = "<p>No videos uploaded for this subject yet.</p>";
+            return;
+        }
+
+        if(selectedSubject === "BIOLOGY"){
+            const grades = [...new Set(snapshot.docs.map(d => d.data().grade))].filter(g=>g).sort();
+            if(!selectedGrade){
+                grades.forEach(grade=>{
+                    const btn = document.createElement("button");
+                    btn.className = "button";
+                    btn.textContent = "Grade " + grade;
+                    btn.onclick = () => { selectedGrade = grade; loadVideos(); };
+                    content.appendChild(btn);
+                });
+                const allBtn = document.createElement("button");
+                allBtn.className = "button";
+                allBtn.textContent = "All Grades";
+                allBtn.onclick = () => { selectedGrade = ""; loadVideos(); };
+                content.appendChild(allBtn);
+                return;
+            }
+
+            const mainTopics = [...new Set(snapshot.docs
+                .filter(d=>selectedGrade==="" || d.data().grade==selectedGrade)
+                .map(d => d.data().mainTopic || ""))].filter(t=>t).sort();
+
+            if(!selectedMainTopic && mainTopics.length>0){
+                mainTopics.forEach(topic=>{
+                    const btn = document.createElement("button");
+                    btn.className = "button";
+                    btn.textContent = topic;
+                    btn.onclick = () => { selectedMainTopic = topic; loadVideos(); };
+                    content.appendChild(btn);
+                });
+                const allBtn = document.createElement("button");
+                allBtn.className = "button";
+                allBtn.textContent = "All Topics";
+                allBtn.onclick = () => { selectedMainTopic = ""; loadVideos(); };
+                content.appendChild(allBtn);
+                return;
+            }
+
+            // Show videos
+            let videos = snapshot.docs
+                .filter(d=>{
+                    const data = d.data();
+                    const gradeMatch = selectedGrade === "" || data.grade == selectedGrade;
+                    const topicMatch = selectedMainTopic === null || selectedMainTopic === "" || data.mainTopic == selectedMainTopic;
+                    return gradeMatch && topicMatch;
+                })
+                .map(doc=>{
+                    const data = doc.data();
+                    return { id: doc.id, title: data.title, link: data.link, order: data.order || 999 };
+                });
+
+            videos.sort((a,b)=>a.order - b.order);
+
+            if(videos.length === 0){
+                content.innerHTML = "<p>No videos found for this selection</p>";
+                return;
+            }
+
+            videos.forEach(video=>{
+                const card = document.createElement("div");
+                card.className = "file-card";
+                card.textContent = `${video.order !== 999 ? video.order + ". " : ""}${video.title}`;
+                card.onclick = () => openVideo(video.link);
+                content.appendChild(card);
+            });
+
+        } else {
+            // Other subjects
+            const mainTopics = [...new Set(snapshot.docs.map(d=>d.data().mainTopic || ""))].filter(t=>t).sort();
+
+            if(!selectedMainTopic && mainTopics.length>0){
+                mainTopics.forEach(topic=>{
+                    const btn = document.createElement("button");
+                    btn.className = "button";
+                    btn.textContent = topic;
+                    btn.onclick = () => { selectedMainTopic = topic; loadVideos(); };
+                    content.appendChild(btn);
+                });
+                const allBtn = document.createElement("button");
+                allBtn.className = "button";
+                allBtn.textContent = "All Videos";
+                allBtn.onclick = () => { selectedMainTopic = ""; loadVideos(); };
+                content.appendChild(allBtn);
+            } else {
+                let videos = snapshot.docs.map(doc=>{
+                    const data = doc.data();
+                    return { id: doc.id, title: data.title, link: data.link, order: data.order || 999, mainTopic: data.mainTopic || "" };
+                });
+
+                if(selectedMainTopic !== null){
+                    videos = videos.filter(v=>v.mainTopic === selectedMainTopic || selectedMainTopic === "");
+                }
+
+                videos.sort((a,b)=>a.order - b.order);
+
+                if(videos.length === 0){
+                    content.innerHTML = "<p>No videos found for this topic</p>";
+                    return;
+                }
+
+                videos.forEach(video=>{
+                    const card = document.createElement("div");
+                    card.className = "file-card";
+                    card.textContent = `${video.order !== 999 ? video.order + ". " : ""}${video.title}`;
+                    card.onclick = () => openVideo(video.link);
+                    content.appendChild(card);
+                });
+            }
+        }
+    });
+}
+
+// ---- Google Drive preview ----
+function openVideo(link){
+    const id = extractDriveId(link);
+    if(id){
+        previewIframe.src = `https://drive.google.com/file/d/${id}/preview`;
+        previewContainer.style.display = "block";
     } else {
-        modalVideo.src = f.link;
-        modalVideo.classList.remove("hidden");
-        modalFrame.classList.add("hidden");
-        downloadBtn.style.display = "none";
+        alert("Invalid video link");
     }
 }
 
-// Close Modal
-function closeModal(){
-    modal.style.display = "none";
-    modalFrame.src = "";
-    modalVideo.src = "";
+function extractDriveId(url){
+    const match = url.match(/[-\w]{25,}/);
+    return match ? match[0] : "";
 }
 
-// Back button
-function goBack(page){
-    pageTerm.classList.add("hidden");
-    pageCourse.classList.add("hidden");
-    pageFiles.classList.add("hidden");
-    if(page === 'term') pageTerm.classList.remove("hidden");
-    if(page === 'course') pageCourse.classList.remove("hidden");
-}
+// INIT
+loadSubjects();
 </script>
 
 </body>
