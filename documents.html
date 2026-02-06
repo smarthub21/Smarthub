@@ -3,354 +3,375 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SMART HUB</title>
+<title>Documents</title>
+
 <style>
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #e6f0ff; /* Light Blue */
-    margin: 0;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-    padding-top: 50px;
+body { margin:0; font-family: Arial,sans-serif; background:#f0f8ff; }
+
+header {
+    background:#0B3D91;
+    color:white;
+    padding:15px 20px;
+    display:flex;
+    align-items:center;
+    box-shadow:0 2px 6px rgba(0,0,0,0.2);
 }
+header h1 {
+    margin:0;
+    font-size:1.5em;
+    flex-grow:1;
+    text-align:center;
+}
+.back-symbol {
+    font-size:1.4em;
+    cursor:pointer;
+    margin-right:10px;
+    user-select:none;
+}
+
 .container {
-    background: #001f3f; /* Navy Blue */
-    padding: 30px;
-    border-radius: 15px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-    width: 450px;
-    max-width: 90%;
-    color: #fff;
-    text-align: center;
+    max-width:800px;
+    margin:20px auto;
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:16px;
 }
-h2 {
-    margin-bottom: 20px;
-    color: #b3d1ff; /* Light Blue */
+
+.button {
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:white;
+    color:#0B3D91;
+    padding:20px;
+    border:none;
+    border-radius:12px;
+    cursor:pointer;
+    font-size:16px;
+    font-weight:bold;
+    text-align:center;
+    box-shadow:0 3px 8px rgba(0,0,0,0.15);
+    transition: transform 0.2s, background 0.2s;
 }
-ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
+.button:hover {
+    transform:translateY(-3px);
+    background:#e6f2ff;
 }
-li {
-    margin: 10px 0;
+
+.file-card {
+    display:flex;
+    align-items:center;
+    background:white;
+    color:#0B3D91;
+    padding:15px 20px;
+    margin:6px 0;
+    border-radius:12px;
+    cursor:pointer;
+    font-size:16px;
+    font-weight:bold;
+    box-shadow:0 3px 8px rgba(0,0,0,0.15);
+    transition: transform 0.2s, background 0.2s;
+    grid-column:1 / -1;
 }
-a, .card {
-    display: block;
-    text-decoration: none;
-    color: #001f3f;
-    background: #b3d1ff;
-    padding: 12px 15px;
-    border-radius: 10px;
-    transition: 0.3s;
-    font-weight: bold;
-    cursor: pointer;
+.file-card:hover {
+    transform:translateY(-2px);
+    background:#e6f2ff;
 }
-a:hover, .card:hover {
-    background: #001f3f;
-    color: #b3d1ff;
-}
-.hidden { display: none; }
-.back-btn {
-    display: inline-block;
-    margin-bottom: 20px;
-    padding: 8px 15px;
-    border-radius: 8px;
-    background: #b3d1ff;
-    color: #001f3f;
-    cursor: pointer;
-    font-weight: bold;
-    transition:0.3s;
-    text-align: left;
-}
-.back-btn:hover {
-    background: #001f3f;
-    color: #b3d1ff;
-}
-.card-container {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-top: 10px;
-}
-/* Modal styles */
-.modal {
-    position: fixed;
+
+#previewContainer {
+    width:100%;
+    height:100vh;
+    position:fixed;
     top:0;
     left:0;
+    background:white;
+    display:none;
+    z-index:1000;
+}
+#previewContainer iframe {
     width:100%;
     height:100%;
-    background: rgba(0,0,0,0.95);
-    display:none;
-    justify-content:center;
-    align-items:center;
-    z-index:1000;
-    flex-direction:column;
-}
-.modal iframe, .modal video {
-    width: 100%;
-    border: none;
-    border-radius: 5px;
-}
-.modal iframe.doc-frame {
-    height: 100%;
-}
-.modal video {
-    height: 60%; /* Videos smaller initially */
-}
-.modal-controls {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    right: 10px;
-    display: flex;
-    gap: 10px;
-    z-index: 1001;
-}
-.modal-controls button {
-    padding: 8px 15px;
-    border-radius:8px;
     border:none;
-    font-weight:bold;
-    cursor:pointer;
-    background:#b3d1ff;
-    color:#001f3f;
-    transition:0.3s;
 }
-.modal-controls button:hover {
-    background:#001f3f;
-    color:#b3d1ff;
+#closePreview {
+    position:absolute;
+    top:10px;
+    right:10px;
+    background:#f44336;
+    color:white;
+    border:none;
+    padding:8px 12px;
+    border-radius:6px;
+    cursor:pointer;
+    z-index:1001;
+}
+#closePreview:hover {
+    background:#d32f2f;
 }
 </style>
 </head>
+
 <body>
 
-<div class="container">
+<header>
+    <span id="backBtn" class="back-symbol" style="display:none;">←</span>
+    <h1>Fincep</h1>
+</header>
 
-<!-- PAGE 1: Term -->
-<div id="pageTerm">
-    <div class="back-btn" onclick="goToDashboard()">⬅ Back</div>
-    <h2>Select Term</h2>
-    <ul id="termList"></ul>
+<div class="container" id="content"></div>
+
+<div id="previewContainer">
+    <button id="closePreview">Close ✖</button>
+    <iframe id="previewIframe"></iframe>
 </div>
 
-<!-- PAGE 2: Course -->
-<div id="pageCourse" class="hidden">
-    <div class="back-btn" onclick="goBack('term')">⬅ Back</div>
-    <h2>Select Course</h2>
-    <ul id="courseList"></ul>
-</div>
-
-<!-- PAGE 3: Topics / Files -->
-<div id="pageFiles" class="hidden">
-    <div class="back-btn" onclick="goBack('course')">⬅ Back</div>
-    <h2>Topics / Files</h2>
-    <div id="filesList" class="card-container"></div>
-</div>
-
-</div>
-
-<!-- Modal -->
-<div id="modal" class="modal">
-    <div class="modal-controls">
-        <button id="downloadBtn">Download 📥</button>
-        <button onclick="closeModal()">Close ✖</button>
-    </div>
-    <iframe id="modalFrame" class="hidden doc-frame" allowfullscreen></iframe>
-    <iframe id="modalVideo" class="hidden" allowfullscreen></iframe>
-</div>
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
-// Redirect to dashboard
-function goToDashboard(){
-    window.location.href = 'dashboard.html'; // Change if your dashboard URL is different
-}
+const firebaseConfig = {
+  apiKey: "AIzaSyCvL_D8wRVC3hS0mEvTt2J_D-LG7wFFpx0",
+  authDomain: "environmentalgpt-4974a.firebaseapp.com",
+  projectId: "environmentalgpt-4974a",
+  storageBucket: "environmentalgpt-4974a.firebasestorage.app",
+  messagingSenderId: "947094029861",
+  appId: "1:947094029861:web:ffa5c1ad4abff06d6e21cc",
+  measurementId: "G-36T3Y37DS4"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
-const docsc = {
-    "Term 1": {
-        "⚙️PH110": [{name:"🟣SERWAY- Physics Text Book",link:"https://drive.google.com/file/d/1GTIjf-58ri_o9kOmZyvysxvRqumU1x74/preview", type:"doc"},
-            {name:"⚫CHAPTER 1-UNITS AND MEASUREMENTS", link:"https://drive.google.com/file/d/1XF4TW5UFIdvMQTatBDI2xU0n8z2fxqQs/preview", type:"doc"},
-        {name:"🌱DIMENSIONAL ANALYSIS", link:"https://drive.google.com/file/d/1y6b-GNP3vrAtoWkDD_4291tyVNRGEerQ/preview", type:"doc"},
-        {name:"⚫CHAPTER 2-SCALAR AND VECTOR QUANTITIES", link:"https://drive.google.com/file/d/11Te0cqF16-sn13RwA4mW5JU-Ma-FgWx2/preview", type:"doc"},
-        {name:"🌱Scalar and Vector part 1(Quantum)", link:"https://drive.google.com/file/d/1hSXElich_97oHco4fzNRXJrflAC2-pUL/preview", type:"doc"},
-        {name:"🌱Scalar And Vector Part 3(Quantum)", link:"https://drive.google.com/file/d/1EzpcAfpRHTXP_cEk6DUkI7i1bYacqsTd/preview", type:"doc"},
-        {name:"🌱CHAPTER 3-KINEMATICS", link:"https://drive.google.com/file/d/1dELWrSaLKoN3oQqrYT60uyi26hQshBQb/preview", type:"doc"},
-        {name:"⚫KInematics Part 1", link:"https://drive.google.com/file/d/1wvcQ-7dUeZtviRLRCF_xLRIGMrk0m9R2/preview", type:"doc"},
-         {name:"🌱KInematics Part 2", link:"https://drive.google.com/file/d/17VU7FXbOOBcwzPkE9EQh6tG6vY5ZCln0/preview", type:"doc"},
-         {name:"🌱KInematics Solved Examples", link:"https://drive.google.com/file/d/19qREykuSTiL6quPBU8sAcJT2_FLaOe_h/preview", type:"doc"},
-         {name:"🌱KInematics Part 4", link:"https://drive.google.com/file/d/1Pg9kzaoUo_eJiOdqCwsjYTqq2vWSqXYI/preview", type:"doc"},
-        {name:"⚫PROJECTILE P1", link:"https://drive.google.com/file/d/1j8PHZ7mg0SY6PEMjuOokxXsLtJ87thUS/preview", type:"doc"}
-       ],
-        "⚗️CH110": [{name:"🔵INTRODUCTION TO CHEMISTRY", link:"https://drive.google.com/file/d/15qNHJl1YGfU7LFjVucNCzDsHZpJXBeDW/preview", type:"doc"},
-        {name:"🟣CH110 TEXT BOOK-DR.NANJA",link:"https://drive.google.com/file/d/1m05reJBWJj3qohFCDWOcsSmaPb_C89S3/preview", type:"doc"},
-       {name:"🌱INTRODUCTION tO Chemistry & Stoichiometry-mazimba", link:"https://drive.google.com/file/d/1tgcyMpE5WnJ2VtS14VRyPkggVOfGbJq6/preview", type:"doc"},
-       {name:"🌱Introduction To Chemistry-EME key points", link:"https://drive.google.com/file/d/1w7n4ZmfWlzhCHD1G5bLskYYMxnkuZmUm/preview", type:"doc"},
-      {name:"🔵Fundemental Of Chemistry", link:"https://drive.google.com/file/d/1OOyLtDunpB4-1eARiI3F4xXqmRgFPf3M/preview", type:"doc"},
-      {name:"🟣MOLE CONCEPT 1", link:"https://drive.google.com/file/d/1ZNzuOvbYNWn83dn3rCtxbuM59SB0BFqM/preview", type:"doc"},{name:"🌱Emperical & Molecular Formula", link:"https://drive.google.com/file/d/1Trdy_CC3f3XHqSIpPavWRNmSCT8-Hm4C/preview", type:"doc"},
-      {name:"Emperical & Molecular Formula 2", link:"https://drive.google.com/file/d/16x52gbvIfglDGZXBQibn-Nb0mPJ37Ed1/preview", type:"doc"},
-       {name:"🌱Stoichiometry Revision Kit", link:"https://drive.google.com/file/d/12KcGID2On8-jDflWG2GOaOAFGJicY9d3/preview", type:"doc"},
-        {name:"🌱Combustion Analysis", link:"https://drive.google.com/file/d/11E5k8oiKFd7gCRVX71iK2xP8qfBZtKhj/preview", type:"doc"},
-       {name:"🌱Solution to Combustion Analysis", link:"https://drive.google.com/file/d/162oXeM4jWhthlsEqNNMJ8SzesNd-n1tb/preview", type:"doc"},{name:"🟣REACTION IN AQUEOUS SOLUTION", link:"", type:"doc"},
-        {name:"🌱Relative Abundence & REDOX Reaction(Acidic & Basic Media", link:"https://drive.google.com/file/d/1sVc6JwBdYlG0oi1xxcTstDEs98FfeRFw/preview", type:"doc"}
-       ],
-        "🧬BI110": [{name:"⚫LECTURE 1-Introduction To Biology", link:"https://drive.google.com/file/d/1-ThH0uALgejdjw0dcKvXW7qX7Gxa8Wyz/preview", type:"doc"},
-      {name:"⚫MICROSCOPY AND STAINING", link:"https://drive.google.com/file/d/1-ThH0uALgejdjw0dcKvXW7qX7Gxa8Wyz/preview", type:"doc"},
-        {name:"⚫MENDELIAN GENETICS", link:"https://drive.google.com/file/d/1OBKc-JXWM2DQjXkBWEEu9sXUY0nrsxV8/preview", type:"doc"},
-        {name:"🌱TRIAL QUESTIONS", link:"https://drive.google.com/file/d/1VmRucMLsN2VozUHrkS-ZVEV5rACetTWw/preview", type:"doc"},
-        {name:"🌱2021 TEST ONE", link:"https://drive.google.com/file/d/15M56VwJZYSlnu-FX49eix6k_V7mgQHrK/preview", type:"doc"},
-        {name:"🌱2019 TEST ONE", link:"https://drive.google.com/file/d/1qjL--jyQAfhndXfd0QeY6VeFDQkqr9d-/preview", type:"doc"},
-         {name:"🌱2024 TEST ONE", link:"https://drive.google.com/file/d/1R-U8tmuIC3Wwv9BjCC-co2G-uAekQ4Nh/preview", type:"doc"}],
-        "🔣MA110": [{name:"⚫Allocation of Topics", link:"https://drive.google.com/file/d/1I3cugPy06HugsvHdOHbLR2KuKEI6qTd2/preview", type:"doc"},
-        {name:"🟣NOTES- Mr.Sakala",link:"https://drive.google.com/file/d/1JPI46F0_OaXuOO1S-_JIJi6X9uILWzXk/preview", type:"doc"},
-        {name:"🌱De Morgan's Law", link:"https://drive.google.com/file/d/1Ttj5wBsQLRyq4JPYvp0PknmbD7GU_2jc/preview", type:"doc"},
-        {name:"🌱Repeating Decimals", link:"https://drive.google.com/file/d/1A97U6vvGgNu-Vld7vpYkBv-JqfJuFNOQ/preview", type:"doc"},
-        {name:"⚫Tutorial Sheet", link:"https://drive.google.com/file/d/1d3COeOAV0VHVLW-yvD3KnbM_caKk6dQq/preview", type:"doc"},
-        {name:"🌱Tutorial Sheet With Solutions", link:"https://drive.google.com/file/d/1CVVb9pdx9s3LjAWinbIW9MMIiqW-ARz1/preview", type:"doc"},
-        {name:"🌱Functions Tutorial Sheet", link:"https://drive.google.com/file/d/1CCPwrbQzajLuLpp8PPXtn6ERImbU3-Bf/preview", type:"doc"},
-        {name:"⚫Standard Questions", link:"https://drive.google.com/file/d/1TP_BlghpKeEsgQGHmKhcyY-sZ_bY4P1y/preview", type:"doc"},
-        {name:"⚫FUNCTIONS-PART ONE(Quantum)", link:"https://drive.google.com/file/d/1q-rtZ8vlHZJL0LluH1fduGy-kogsjwrP/preview", type:"doc"},
-        {name:"🌱FUNCTIONS-PART TWO Solutions (Quantum)", link:"https://drive.google.com/file/d/1y2TsApx7f-v2Gnm_GVjXm4vKo2WEirhU/preview", type:"doc"},
-        {name:"🌱FUNCTIONS-QUADRATIC PART THREE (quantum)", link:"https://drive.google.com/file/d/1UFYW-zwxwwP-1RivEQht3juCkVQ2zYpP/preview", type:"doc"},
-        {name:"⚫Graphing Polynomial Functions", link:"https://drive.google.com/file/d/1PHAySfn4P-Sxr5eY9iquLHs72f3eVl4Y/preview", type:"doc"},
-        {name:"🌱Solutions to Graphing", link:"https://drive.google.com/file/d/1ZRlwOSMWEdXhhZFwOoyOV3GVSctqKAhF/preview", type:"doc"},
-       {name:"🌱Solutions to Functions", link:"https://drive.google.com/file/d/1AoFtoWbUEikaiM4MldSgjXPpU88RpRAw/preview", type:"doc"},
-       {name:"🌱EVEN, ODD OR NEITHER", link:"https://drive.google.com/file/d/1ngtjaSBOq0UrtHgRRUKXDXYDjTfkcV_k/preview", type:"doc"},
-       {name:"🌱HOW TO FIND DOMAIN & RANGE", link:"https://drive.google.com/file/d/1pEPgzCt-aSYFBvUw6S0pSLTCH_lQkU7C/preview", type:"doc"},
-       {name:"🌱RELATIONSHIP BETWEEN ROOT & COEFFICIENT OF THE QUADRATIC FUNCTION", link:"https://drive.google.com/file/d/1QBZqyIPQTrtzF41dNCt-_4zw_28GHYcy/preview", type:"doc"},
-       {name:"🌱Asymptotes, Square Root And Polynomial Graphs", link:"https://drive.google.com/file/d/1mASIAGwViVfKtt8m0kpT9R_EmgsWzHK_/preview", type:"doc"},
-         {name:"🌱TEST ONES SOLUTIONS ", link:"https://drive.google.com/file/d/1s-JBM2hGlP2bhizgFkpw9bp7tr1HwIix/preview", type:"doc"},
-{name:"🌱MASA 2025 COMPILED ANSWERS", link:"https://drive.google.com/file/d/1Q6MoTHejc-SIoGQV1Q1zowMOIiuQdtcJ/preview", type:"doc"}],
-        "📠LA111": [{name:"🔵LA111 LECTURER'S NOTES-MR S. KAVWAYA",link:"https://drive.google.com/file/d/1snNp3XLfbS5p6g8V8-oY6WIBNAx5SwOX/preview", type:"doc"},
-     {name:"🌱 BARRIERS TO NON-VERBAL COMMUNICATION",link:"https://drive.google.com/file/d/1YQRqU1sbscKH-XBTCzv1J8GU_p27Uw3s/preview", type:"doc"},
-{name:"🌱2023 Test one LA111",link:"https://drive.google.com/file/d/1-_HksDLtzUbpMah-nyZfEuXJgzXL8LbY/preview", type:"doc"},{name:"🌱2021 LA111 Test one",link:"https://drive.google.com/file/d/1TFw3eJhr9lOIA1vHK7uCi-uCBWgwVMHP/preview",type:"doc"}],
-        "🖥️CS110": [{name:"🟣UNIT ONE", link:"https://drive.google.com/file/d/1GsCi1VEvWjJ1nvSKyeLpoFReMlB20y0M/preview", type:"doc"},
-        {name:"🌱TEST YOURSELF-Unit 1",link:"https://drive.google.com/file/d/1Dh5eeTJdFJdQQlmDjJ9Ox-1i-btuRvET/preview",type:"doc"},                             
-        {name:"🟣UNIT TWO", link:"https://drive.google.com/file/d/1zC1Gt7eKuxw2SQDFzjHpZmUQU7AO8MHU/preview", type:"doc"},
-         {name:"🌱TEST YOURSELF-Unit 2",link:"https://drive.google.com/file/d/1UUr14HUUHUcaHns55QcRMiHDPZquzZam/preview",type:"doc"},                             
+// --- Predefined subjects for dropdown ---
+const subjectsList = ["BI210","CH210","PH210","MA210","EN211","ED211"];
 
-        {name:"🟣UNIT THREE", link:"https://drive.google.com/file/d/1z9S_4EG6Ig_n0J5cPwvz-4AEVg6U6FTh/preview", type:"doc"}, 
-      {name:"🌱TEST YOURSELF-Unit 3",link:"https://drive.google.com/file/d/11jo5ataye84RTAxwrsYoyKOxmX4QY6d7/preview",type:"doc"},
-        {name:"🟣UNIT FOUR", link:"https://drive.google.com/file/d/1BMIM6t1TdEl60F2qhmMEbmYMymJtUEXh/preview", type:"doc"},
-        {name:"🟣UNIT FIVE", link:"https://drive.google.com/file/d/1JrfQwK9pYRogQzUp5gBoT2fR2rY0tWvf/preview", type:"doc"},
-        {name:"🔵UNIT ONE(Old Notes)", link:"https://drive.google.com/file/d/1_n6FGJV9TWCDBwJa-UsLqu3qHTcvnOvS/preview", type:"doc"},
-        {name:"🔵UNIT TWO(Old Notes)", link:"https://drive.google.com/file/d/1xt1CLBLIY-UzDOyWFefh1M8Cvcno8bre/preview", type:"doc"},
-         {name:"🔵UNIT THREE(Old Notes)", link:"https://drive.google.com/file/d/11CwaEr32nKazfF0c97ggzLFBvdBF4cII/preview", type:"doc"},
-      {name:"🟣CS110 IMPORTANT ABBREVIATION TO MASTER", link:"https://drive.google.com/file/d/11jSsJ2053eYp8ionuO-0O4DVqCPrFEZA/preview", type:"doc"}]
-    },
-    "Term 2": {
-        "⚙️PH110": [
-            {name:"Physics Term2 Notes", link:"", type:"doc"}
-        ],
-        "⚗️CH110": [],
-        "🧬BI110": [],
-        "🔣MA110": [],
-        "📠LA111": [],
-        "🖥️CS110": []
-    },
-    "Term 3": {
-        "⚙️PH110": [],
-        "⚗️CH110": [],
-        "🧬BI110": [],
-        "🔣MA110": [],
-        "📠LA111": [],
-        "🖥️CS110": []
+let selectedSubject = null;
+let selectedGrade = null;
+let selectedMainTopic = null;
+
+const content = document.getElementById("content");
+const backBtn = document.getElementById("backBtn");
+const previewContainer = document.getElementById("previewContainer");
+const previewIframe = document.getElementById("previewIframe");
+const closePreview = document.getElementById("closePreview");
+
+closePreview.onclick = () => {
+    previewContainer.style.display = "none";
+    previewIframe.src = "";
+};
+
+backBtn.onclick = () => {
+    if(selectedMainTopic){
+        selectedMainTopic = null;
+        loadFiles();
+    } else if(selectedGrade){
+        selectedGrade = null;
+        loadFiles();
+    } else {
+        selectedSubject = null;
+        loadSubjects();
     }
 };
 
+// ---- SUBJECTS ----
+function loadSubjects(){
+    content.innerHTML = "";
+    backBtn.style.display = "none";
 
-// Selected
-let selectedTerm = "";
-let selectedCourse = "";
-
-// Pages
-const pageTerm = document.getElementById("pageTerm");
-const pageCourse = document.getElementById("pageCourse");
-const pageFiles = document.getElementById("pageFiles");
-
-const termList = document.getElementById("termList");
-const courseList = document.getElementById("courseList");
-const filesList = document.getElementById("filesList");
-
-// Modal
-const modal = document.getElementById("modal");
-const modalFrame = document.getElementById("modalFrame");
-const modalVideo = document.getElementById("modalVideo");
-const downloadBtn = document.getElementById("downloadBtn");
-
-// Populate Term
-Object.keys(docsc).forEach(term => {
-    const li = document.createElement("li");
-    li.innerHTML = `<a href="#">${term}</a>`;
-    li.onclick = () => { selectedTerm = term; showCourses(); };
-    termList.appendChild(li);
-});
-
-function showCourses(){
-    pageTerm.classList.add("hidden");
-    pageCourse.classList.remove("hidden");
-    courseList.innerHTML = "";
-    Object.keys(docsc[selectedTerm]).forEach(course => {
-        const li = document.createElement("li");
-        li.innerHTML = `<a href="#">${course}</a>`;
-        li.onclick = () => { selectedCourse = course; showFiles(); };
-        courseList.appendChild(li);
-    });
-}
-
-function showFiles(){
-    pageCourse.classList.add("hidden");
-    pageFiles.classList.remove("hidden");
-    filesList.innerHTML = "";
-    const topicFiles = docsc[selectedTerm][selectedCourse];
-    if(!topicFiles || topicFiles.length === 0){
-        filesList.innerHTML = "<div class='card'>No files available.</div>";
-        return;
-    }
-    topicFiles.forEach(f => {
-        const div = document.createElement("div");
-        div.className = "card";
-        div.innerHTML = `<p>${f.name} ${f.type==="doc"?"📄":"▶️"}</p>`;
-        div.onclick = () => openModal(f);
-        filesList.appendChild(div);
-    });
-}
-
-// Open Modal
-function openModal(f){
-    modal.style.display = "flex";
-    if(f.type==="doc"){
-        modalFrame.src = f.link;
-        modalFrame.classList.remove("hidden");
-        modalVideo.classList.add("hidden");
-        downloadBtn.style.display = "inline-block";
-        downloadBtn.onclick = () => {
-            const downloadLink = f.link.replace('/preview','/uc?export=download');
-            window.open(downloadLink,'_blank');
+    subjectsList.forEach(subject=>{
+        const btn = document.createElement("button");
+        btn.className = "button";
+        btn.textContent = subject;
+        btn.onclick = () => {
+            selectedSubject = subject;
+            loadFiles();
         };
-    } else {
-        modalVideo.src = f.link;
-        modalVideo.classList.remove("hidden");
-        modalFrame.classList.add("hidden");
-        downloadBtn.style.display = "none";
-    }
+        content.appendChild(btn);
+    });
 }
 
-// Close Modal
-function closeModal(){
-    modal.style.display = "none";
-    modalFrame.src = "";
-    modalVideo.src = "";
+// ---- FILES ----
+function loadFiles(){
+    content.innerHTML = "";
+    backBtn.style.display = "inline-block";
+
+    db.collection("documents")
+      .where("subject","==",selectedSubject)
+      .get()
+      .then(snapshot=>{
+        if(snapshot.empty){
+            content.innerHTML = "<p>No documents found for this subject</p>";
+            return;
+        }
+
+        if(selectedSubject === "BIOLOGY"){
+            // --- Biology: Grades → Main Topics → Files ---
+            const grades = [...new Set(snapshot.docs.map(d => d.data().grade))].filter(g=>g).sort();
+            if(!selectedGrade){
+                grades.forEach(grade=>{
+                    const btn = document.createElement("button");
+                    btn.className = "button";
+                    btn.textContent = "Grade " + grade;
+                    btn.onclick = () => {
+                        selectedGrade = grade;
+                        loadFiles();
+                    };
+                    content.appendChild(btn);
+                });
+
+                const allBtn = document.createElement("button");
+                allBtn.className = "button";
+                allBtn.textContent = "All Grades";
+                allBtn.onclick = () => {
+                    selectedGrade = "";
+                    loadFiles();
+                };
+                content.appendChild(allBtn);
+                return;
+            }
+
+            const mainTopics = [...new Set(snapshot.docs
+                .filter(d=>selectedGrade==="" || d.data().grade==selectedGrade)
+                .map(d => d.data().mainTopic || ""))].filter(t=>t).sort();
+
+            if(!selectedMainTopic && mainTopics.length>0){
+                mainTopics.forEach(topic=>{
+                    const btn = document.createElement("button");
+                    btn.className = "button";
+                    btn.textContent = topic;
+                    btn.onclick = () => {
+                        selectedMainTopic = topic;
+                        loadFiles();
+                    };
+                    content.appendChild(btn);
+                });
+
+                const allBtn = document.createElement("button");
+                allBtn.className = "button";
+                allBtn.textContent = "All Topics";
+                allBtn.onclick = () => {
+                    selectedMainTopic = "";
+                    loadFiles();
+                };
+                content.appendChild(allBtn);
+                return;
+            }
+
+            let files = snapshot.docs
+                .filter(d=>{
+                    const data = d.data();
+                    const gradeMatch = selectedGrade === "" || data.grade == selectedGrade;
+                    const topicMatch = selectedMainTopic === null || selectedMainTopic === "" || data.mainTopic == selectedMainTopic;
+                    return gradeMatch && topicMatch;
+                })
+                .map(doc=>{
+                    const data = doc.data();
+                    return {
+                        id: doc.id,
+                        title: data.title,
+                        link: data.link,
+                        order: data.order || 999
+                    };
+                });
+
+            files.sort((a,b)=>a.order - b.order);
+
+            if(files.length === 0){
+                content.innerHTML = "<p>No documents found for this selection</p>";
+                return;
+            }
+
+            files.forEach(file=>{
+                const card = document.createElement("div");
+                card.className = "file-card";
+                card.textContent = `${file.order !== 999 ? file.order + ". " : ""}${file.title}`;
+                card.onclick = () => {
+                    const id = extractDriveId(file.link);
+                    if(id){
+                        previewIframe.src = `https://drive.google.com/file/d/${id}/preview`;
+                        previewContainer.style.display = "block";
+                    } else {
+                        alert("Invalid file link");
+                    }
+                };
+                content.appendChild(card);
+            });
+
+        } else {
+            // --- Other subjects ---
+            const mainTopics = [...new Set(snapshot.docs.map(d => d.data().mainTopic || ""))].filter(t=>t).sort();
+
+            if(!selectedMainTopic && mainTopics.length>0){
+                mainTopics.forEach(topic=>{
+                    const btn = document.createElement("button");
+                    btn.className = "button";
+                    btn.textContent = topic;
+                    btn.onclick = () => {
+                        selectedMainTopic = topic;
+                        loadFiles();
+                    };
+                    content.appendChild(btn);
+                });
+
+                const allBtn = document.createElement("button");
+                allBtn.className = "button";
+                allBtn.textContent = "All Documents";
+                allBtn.onclick = () => {
+                    selectedMainTopic = "";
+                    loadFiles();
+                };
+                content.appendChild(allBtn);
+            } else {
+                let files = snapshot.docs.map(doc=>{
+                    const data = doc.data();
+                    return {
+                        id: doc.id,
+                        title: data.title,
+                        link: data.link,
+                        order: data.order || 999,
+                        mainTopic: data.mainTopic || ""
+                    };
+                });
+
+                if(selectedMainTopic !== null){
+                    files = files.filter(f=>f.mainTopic === selectedMainTopic || selectedMainTopic === "");
+                }
+
+                files.sort((a,b)=>a.order - b.order);
+
+                if(files.length === 0){
+                    content.innerHTML = "<p>No documents found for this topic</p>";
+                    return;
+                }
+
+                files.forEach(file=>{
+                    const card = document.createElement("div");
+                    card.className = "file-card";
+                    card.textContent = `${file.order !== 999 ? file.order + ". " : ""}${file.title}`;
+                    card.onclick = () => {
+                        const id = extractDriveId(file.link);
+                        if(id){
+                            previewIframe.src = `https://drive.google.com/file/d/${id}/preview`;
+                            previewContainer.style.display = "block";
+                        } else {
+                            alert("Invalid file link");
+                        }
+                    };
+                    content.appendChild(card);
+                });
+            }
+        }
+    });
 }
 
-// Back button
-function goBack(page){
-    pageTerm.classList.add("hidden");
-    pageCourse.classList.add("hidden");
-    pageFiles.classList.add("hidden");
-    if(page === 'term') pageTerm.classList.remove("hidden");
-    if(page === 'course') pageCourse.classList.remove("hidden");
+// ---- Google Drive ID ----
+function extractDriveId(url){
+    const match = url.match(/[-\w]{25,}/);
+    return match ? match[0] : "";
 }
+
+// INIT
+loadSubjects();
 </script>
 
 </body>
