@@ -2,13 +2,11 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Dashboard | Learn with Smarthub</title>
+<title>Dashboard | Learn with GPT</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
 <style>
-/* General Reset */
-body { margin:0; font-family:Arial,sans-serif; background:#f4f6f8; }
+body { margin:0; font-family:Arial,sans-serif; background:#f0f8ff; }
 
 /* Header */
 .header {
@@ -17,19 +15,14 @@ body { margin:0; font-family:Arial,sans-serif; background:#f4f6f8; }
     justify-content:space-between;
     background:#0B3D91;
     color:white;
-    padding:20px 20px 30px; /* increased top padding */
-    border-bottom-left-radius:22px;
-    border-bottom-right-radius:22px;
+    padding:15px 20px;
     position:relative;
 }
 
 /* Hamburger and logout */
-.header .hamburger, .header .logout {
-    font-size:22px;
-    cursor:pointer;
-}
+.header .hamburger, .header .logout { font-size:22px; cursor:pointer; }
 
-/* Center area: logo + title + welcome */
+/* Header center */
 .header-center {
     flex:1;
     text-align:center;
@@ -38,105 +31,59 @@ body { margin:0; font-family:Arial,sans-serif; background:#f4f6f8; }
     align-items:center;
     justify-content:center;
 }
+.header .title { font-size:22px; font-weight:bold; margin-bottom:5px; }
+.header .welcome { font-size:18px; margin-bottom:3px; }
+.header .countdown { font-size:16px; color:white; opacity:0.9; }
 
-.header-logo {
-    height:35px;
-    margin-bottom:5px;
-}
-
-.header .title {
-    font-size:20px;
-    font-weight:bold;
-}
-
-.header .welcome {
-    font-size:14px;
-    margin-top:3px;
-    opacity:0.9;
-}
-
-/* Sidebar Menu */
-.menu {
-    position:fixed;
-    top:0; left:0;
-    width:260px; height:100%;
-    background:#fff;
-    box-shadow:2px 0 6px rgba(0,0,0,0.2);
-    padding-top:20px;
-    transform:translateX(-100%);
-    transition:transform 0.3s ease;
-    z-index:1000;
-    display:flex;
-    flex-direction:column;
-}
+/* Sidebar */
+.menu { position:fixed; top:0; left:0; width:260px; height:100%; background:#fff; box-shadow:2px 0 6px rgba(0,0,0,0.2); padding-top:20px; transform:translateX(-100%); transition:transform 0.3s ease; z-index:1000; display:flex; flex-direction:column; }
 .menu.open { transform:translateX(0); }
 .menu-top { text-align:center; padding:20px 0; border-bottom:1px solid #e3ebf5; }
-.menu-logo { width:100px; height:auto; border-radius:50%; }
-.menu a {
-    display:block;
-    padding:15px 20px;
-    text-decoration:none;
-    color:#333;
-    font-size:16px;
-}
+.menu-logo { width:100px; border-radius:50%; }
+.menu a { display:block; padding:15px 20px; text-decoration:none; color:#333; font-size:16px; }
 .menu a i { margin-right:10px; color:#0B3D91; }
 .menu a:hover { background:#e3ebf5; }
 
 /* Grid Cards */
-.grid {
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
-    gap:15px;
-    padding:20px;
-}
-.card {
-    background:white;
-    padding:30px 20px;
-    text-align:center;
-    border-radius:14px;
-    cursor:pointer;
-    box-shadow:0 2px 5px rgba(0,0,0,0.08);
-    transition:0.2s;
-}
+.grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:15px; padding:20px; }
+.card { background:white; padding:30px 20px; text-align:center; border-radius:14px; cursor:pointer; box-shadow:0 2px 5px rgba(0,0,0,0.08); transition:0.2s; }
 .card i { font-size:30px; color:#0B3D91; margin-bottom:10px; }
 .card span { display:block; font-size:16px; font-weight:500; }
 .card:hover { background:#eef3fa; }
+
+/* WhatsApp floating */
+#whatsapp { position:fixed; bottom:20px; right:20px; background:#25D366; color:white; border-radius:50%; width:60px; height:60px; display:flex; justify-content:center; align-items:center; font-size:30px; box-shadow:0 3px 6px rgba(0,0,0,0.3); cursor:pointer; z-index:1000; }
+#adminLink { display:none; }
 </style>
 </head>
-
 <body>
 
-<!-- Sidebar -->
 <div id="sideMenu" class="menu">
-    <div class="menu-top"><img src="hublogo.jpg" alt="Logo" class="menu-logo"></div>
+    <div class="menu-top"><img src="beng.jpg" alt="Logo" class="menu-logo"></div>
     <a href="about.html"><i class="fa-solid fa-phone"></i>Contact Us</a>
     <a href="motivation.html"><i class="fa-solid fa-lightbulb"></i>Motivation</a>
-    <a href="calculator.html"><i class="fa-solid fa-calculator"></i>Calculator</a>
     <a href="ca_calculator.html"><i class="fa-solid fa-calculator"></i>CA-Calculator</a>
-<a href="buy.html"><i class="fa-solid fa-calculator"></i>Buy and Sell</a>
+    <a href="admin.html" id="adminLink"><i class="fa-solid fa-user-shield"></i>Admin</a>
 </div>
 
-<!-- Header -->
 <div class="header">
     <div class="hamburger"><i class="fa-solid fa-bars"></i></div>
-
-    <!-- Centered logo + title + welcome -->
     <div class="header-center">
-        <img src="hublogo.jpg" alt="Logo" class="header-logo">
-        <div class="title">Learn with Smarthub</div>
-        <div class="welcome">Learn New Things Today<strong id=""></strong></div>
+        <div class="title">ENGINEERING</div>
+        <div class="welcome">Welcome, <strong id="username">User</strong></div>
+        <div class="countdown" id="countdown">Loading countdown...</div>
     </div>
-
     <div class="logout"><i class="fa-solid fa-power-off"></i></div>
 </div>
 
-<!-- Main Grid -->
 <div class="grid">
     <div class="card" onclick="location.href='videos.html'"><i class="fa-solid fa-play"></i><span>Videos</span></div>
     <div class="card" onclick="location.href='documents.html'"><i class="fa-solid fa-folder-open"></i><span>Documents</span></div>
-    <div class="card" onclick="location.href='quiz.html'"><i class="fa-solid fa-circle-question"></i><span>Quiz</span></div>
+    <div class="card" onclick="location.href='dashboard.html'"><i class="fa-solid fa-circle-question"></i><span>Task</span></div>
     <div class="card" onclick="location.href='pastpapers.html'"><i class="fa-solid fa-box-archive"></i><span>Past Papers</span></div>
 </div>
+
+<div id="whatsapp" onclick="window.open('https://chat.whatsapp.com/YOUR_GROUP_LINK','_blank')"><i class="fa-brands fa-whatsapp"></i></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
@@ -144,15 +91,13 @@ import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/fi
 import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyB7e9k4jB4sVDpqK0wKdY1GK3wEI8fFck4",
-  authDomain: "smarthub-ff357.firebaseapp.com",
-  projectId: "smarthub-ff357",
-  storageBucket: "smarthub-ff357.firebasestorage.app",
-  messagingSenderId: "794427490398",
-  appId: "1:794427490398:web:3350b0927dfc62d30134cf",
-  measurementId: "G-7FZTLSB4LG"
+    apiKey: "AIzaSyCvL_D8wRVC3hS0mEvTt2J_D-LG7wFFpx0",
+    authDomain: "environmentalgpt-4974a.firebaseapp.com",
+    projectId: "environmentalgpt-4974a",
+    storageBucket: "environmentalgpt-4974a.firebasestorage.app",
+    messagingSenderId: "947094029861",
+    appId: "1:947094029861:web:ffa5c1ad4abff06d6e21cc"
 };
-
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -181,16 +126,53 @@ document.querySelector('.logout').onclick = async ()=>{
     window.location.href = "login.html";
 };
 
-/* Show username */
+/* Show username, countdown, admin link */
 onAuthStateChanged(auth, async user=>{
     if(!user) return window.location.href="login.html";
     try{
         const snap = await getDoc(doc(db,"users",user.uid));
-        const name = snap.exists()? snap.data().name : "User";
+        const userData = snap.exists()? snap.data() : null;
+        if(!userData) return alert("User data not found!");
+
+        // Welcome user
+        const name = userData.name || "User";
         document.getElementById("username").innerText = name;
-        localStorage.setItem("name", name);
+
+        // Admin link
+        if(userData.role === "admin") document.getElementById("adminLink").style.display = "block";
+
+        // Countdown
+        if(!userData.countdownEnd){
+            document.getElementById("countdown").innerText="No access info";
+            return;
+        }
+
+        const countdownEl = document.getElementById("countdown");
+        function updateCountdown(){
+            const now = new Date();
+            const endTime = userData.countdownEnd.toDate ? userData.countdownEnd.toDate() : new Date(userData.countdownEnd);
+            const diff = endTime - now;
+
+            if(diff <= 0){
+                countdownEl.innerText = "Access expired!";
+                alert("Your access has expired!");
+                auth.signOut();
+                window.location.href="login.html";
+                return;
+            }
+
+            const d = Math.floor(diff/(1000*60*60*24));
+            const h = Math.floor(diff/(1000*60*60)%24);
+            const m = Math.floor(diff/(1000*60)%60);
+            const s = Math.floor(diff/1000%60);
+            countdownEl.innerText = `${d}d ${h}h ${m}m ${s}s left`;
+        }
+
+        updateCountdown();
+        setInterval(updateCountdown,1000);
+
     }catch(e){
-        document.getElementById("username").innerText = localStorage.getItem("name") || "User";
+        console.error(e);
     }
 });
 </script>
