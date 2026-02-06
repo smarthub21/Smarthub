@@ -2,286 +2,128 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>smarthub</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
+<title>Past Papers</title>
 <style>
-body{ margin:0; font-family:Arial,sans-serif; background:#f4f6f8; }
+body { font-family: Arial, sans-serif; margin:0; background:#f0f8ff; }
+header { background:#0B3D91; color:white; padding:15px 20px; display:flex; align-items:center; box-shadow:0 2px 6px rgba(0,0,0,0.2); position:relative; }
+header h1 { margin:0; font-size:1.5em; flex-grow:1; text-align:center; }
+.back-btn { position:absolute; left:15px; background:none; border:none; font-size:24px; cursor:pointer; color:white; display:none; }
 
-/* Header */
-.header{
-  background:#0B3D91;
-  color:white;
-  padding:15px 20px 25px;
-  border-bottom-left-radius:22px;
-  border-bottom-right-radius:22px;
-  position:relative;
-  text-align:center;
-}
-.hamburger{ position:absolute; left:20px; top:18px; font-size:22px; cursor:pointer; }
-.logout{ position:absolute; right:20px; top:18px; font-size:20px; cursor:pointer; }
-.title{ font-size:20px; font-weight:bold; }
-.welcome{ font-size:14px; margin-top:5px; opacity:0.9; }
+.container { max-width:900px; margin:20px auto; display:grid; grid-template-columns:1fr 1fr; gap:15px; padding:0 10px; }
 
-/* Sidebar */
-.menu{
-  position:fixed; top:0; left:0;
-  width:260px; height:100%;
-  background:white;
-  box-shadow:2px 0 6px rgba(0,0,0,0.2);
-  transform:translateX(-100%);
-  transition:0.3s;
-  z-index:1000;
-}
-.menu.open{ transform:translateX(0); }
-.menu-top{ text-align:center; padding:20px; border-bottom:1px solid #e3ebf5; }
-.menu-logo{ width:90px; border-radius:50%; }
-.menu a{
-  display:block; padding:15px 20px;
-  text-decoration:none; color:#333;
-}
-.menu a i{ margin-right:10px; color:#0B3D91; }
-.menu a:hover{ background:#eef3fa; }
+.card { background:white; padding:20px; border-radius:12px; box-shadow:0 3px 8px rgba(0,0,0,0.15); text-align:center; font-weight:bold; color:#0B3D91; cursor:pointer; transition:transform 0.2s, background 0.2s; }
+.card:hover { transform:translateY(-3px); background:#e6f2ff; }
 
-/* Content */
-.content{ padding:20px; }
-
-/* Grid */
-.grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
-  gap:15px;
-}
-
-/* Cards */
-.card{
-  background:white;
-  padding:30px 20px;
-  border-radius:14px;
-  text-align:center;
-  cursor:pointer;
-  box-shadow:0 2px 5px rgba(0,0,0,0.08);
-  transition:0.2s;
-}
-.card:hover{ background:#eef3fa; }
-.card i{ font-size:30px; color:#0B3D91; margin-bottom:10px; }
-.card span{ display:block; font-weight:500; }
-
-/* Back Button */
-.back{
-  margin-bottom:15px;
-  cursor:pointer;
-  color:#0B3D91;
-  font-weight:bold;
-}
-
-/* PDF Viewer full screen */
-.pdf-modal{
-  display:none;
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,0.9);
-  z-index:2000;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  padding:20px;
-}
-.pdf-modal iframe{
-  width:100%;
-  height:90vh;
-  border:none;
-  border-radius:8px;
-}
-.pdf-controls{
-  width:100%;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:10px;
-}
-.pdf-controls .close{
-  font-size:30px;
-  color:white;
-  cursor:pointer;
-}
-.pdf-controls .download{
-  color:#0B3D91;
-  background:#fff;
-  padding:8px 14px;
-  border-radius:6px;
-  text-decoration:none;
-  font-weight:bold;
-}
-
-/* Responsive */
-@media(max-width:600px){
-  .pdf-modal iframe{ height:80vh; }
-}
+#viewer { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:1000; flex-direction:column; justify-content:center; align-items:center; }
+#viewer button { position:absolute; top:20px; right:20px; font-size:28px; background:none; border:none; color:white; cursor:pointer; }
+#viewer iframe { width:90%; height:90vh; border:none; border-radius:8px; }
 </style>
 </head>
 <body>
 
-<!-- Sidebar -->
-<div id="sideMenu" class="menu">
-  <div class="menu-top">
-    <img src="hublogo.jpg" class="menu-logo">
-  </div>
-  <a href="dashboard.html"><i class="fa-solid fa-house"></i>Dashboard</a>
-  <a href="contact.html"><i class="fa-solid fa-phone"></i>Contact Us</a>
-  <a href="motivation.html"><i class="fa-solid fa-lightbulb"></i>Motivation</a>
-  <a href="calculator.html"><i class="fa-solid fa-calculator"></i>Calculator</a>
+<header>
+<button class="back-btn" onclick="goBack()">&#8592;</button>
+<h1>Past Papers</h1>
+</header>
+
+<div id="mainContainer" class="container"></div>
+
+<div id="viewer">
+  <button onclick="closeViewer()">&times;</button>
+  <iframe id="paperFrame"></iframe>
 </div>
 
-<!-- Header -->
-<div class="header">
-  <div class="hamburger"><i class="fa-solid fa-bars"></i></div>
-  <div class="logout"><i class="fa-solid fa-power-off"></i></div>
-  <div class="title">Learn smarthub</div>
-  <div class="welcome">Welcome, <strong id="username"></strong></div>
-</div>
-
-<div class="content">
-
-  <!-- COURSES -->
-  <div id="coursesView">
-    <div class="grid">
-      <div class="card" onclick="openCourse('MA110')"><i class="fa-solid fa-square-root-variable"></i><span>MA110 - Mathematics</span></div>
-      <div class="card" onclick="openCourse('CH110')"><i class="fa-solid fa-flask"></i><span>CH110 - Chemistry</span></div>
-      <div class="card" onclick="openCourse('PH110')"><i class="fa-solid fa-atom"></i><span>PH110 - Physics</span></div>
-      <div class="card" onclick="openCourse('BI110')"><i class="fa-solid fa-dna"></i><span>BI110 - Biology</span></div>
-      <div class="card" onclick="openCourse('CS110')"><i class="fa-solid fa-laptop-code"></i><span>CS110 - Computer Science</span></div>
-      <div class="card" onclick="openCourse('LA110')"><i class="fa-solid fa-comments"></i><span>LA110 - Communication Skills</span></div>
-    </div>
-  </div>
-
-  <!-- PAST PAPERS -->
-  <div id="papersView" style="display:none;">
-    <div class="back" onclick="goBack()">← Back to Courses</div>
-    <h3 id="courseTitle"></h3>
-    <div id="papersGrid" class="grid"></div>
-  </div>
-
-</div>
-
-<!-- PDF MODAL -->
-<div id="pdfModal" class="pdf-modal"></div>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
-// Google Drive past papers links
-const papers = {
-  MA110:[
-    {title:"2015 - Test 1", link:"https://drive.google.com/file/d/19HqPzaAhfz2HWFb-6Ey5TRwZtOK5xM6o/preview"},
-    {title:"2025 MASA SOLUTIONS", link:"https://drive.google.com/file/d/1Q6MoTHejc-SIoGQV1Q1zowMOIiuQdtcJ/preview"},
-    {title:"Solutions - Test 1", link:"https://drive.google.com/file/d/1HhWsf_NojyZO5OuGkwCf9yaSu5HwYJ82/preview"},
-    {title:"2018 - Test 1", link:"https://drive.google.com/file/d/1bs11raGZHPOlG5R2yMVNQqf74BX3pkz1/preview"},
-    {title:"2019 - Test 1", link:"https://drive.google.com/file/d/1iIY6576nlskSlPOYKURORXI45AcxuO3O/preview"},
-    {title:"2021- Test 1 ", link:"https://drive.google.com/file/d/1zPu0Y5nxn3LSw7LL4TnSiTyD2I6pZly2/preview"},
-    {title:"2023- Test 1", link:"https://drive.google.com/file/d/1l9SfkNgYgUgk9-ozJNMfwSoZInM5mlVL/preview"},
-    {title:"2024- Test 1", link:"https://drive.google.com/file/d/1aq1Z_gBjKQk5xyYRYzRdXSMvF8EqhMAd/preview"}
-  ],
-  CH110:[
-    {title:"2023 - Test 1 solutions", link:"https://drive.google.com/file/d/1rlvlwA6spGTjtANK2o_R9RQscX2kyRUh/preview"},
-    {title:"2024 - Test 1", link:"https://drive.google.com/file/d/12jP-pOa6ylSg21K8CKCHi_SVWTglGUPJ/preview"},
-    {title:"2013-2023(7 IN ONE) - Test 1", link:"https://drive.google.com/file/d/1t9EIFiM28eeQvwqUuIbJh-LlibxR-Fpg/preview"},
-     {title:"2021 - Test 1", link:"https://drive.google.com/file/d/1umL7Db0-Zinoa10hVw8CGWCzFwbCSP-K/preview"},
-     {title:"2022-2023 - Test 1", link:"https://drive.google.com/file/d/1ikNQUj6NHwKc7_GE_u-lHZecpke5Zp3Q/preview"}
-  
-  ],
-  PH110:[
-    {title:"2020 Diferred- Test 1", link:"https://drive.google.com/file/d/1nsPZOQBdaPAwUcm_-iDPcwV69hGPT4jF/preview"},
-    {title:"2020 Solutions- Test 1", link:"https://drive.google.com/file/d/1tnYM743_L_mrDIUE72bcRT-XBeoHh3VT/preview"},
-    {title:"2023 Solutions - Test 1", link:"https://drive.google.com/file/d/10gmUMZnE_1-SijwwV0ul5Exc1ngcqthY/preview"},
-  {title:"2014 - Test 1", link:"https://drive.google.com/file/d/1286ij6W1nTt7buiYKrM7t6hoJGZig3L-/preview"}
-  ],
-  BI110:[
-    {title:"2021 - Test 1", link:"https://drive.google.com/file/d/15M56VwJZYSlnu-FX49eix6k_V7mgQHrK/preview"},
-    {title:"2019 - Test 1", link:"https://drive.google.com/file/d/1qjL--jyQAfhndXfd0QeY6VeFDQkqr9d-/preview"},
-     {title:"2024 Deffered - Test 1", link:"https://drive.google.com/file/d/1c-a_BvX5w6pxKg2yQi2pNVUbbRS3V1Bs/preview"},
-     {title:"2024 - Test 1", link:"https://drive.google.com/file/d/1R-U8tmuIC3Wwv9BjCC-co2G-uAekQ4Nh/preview"}
-  ],
-  CS110:[
-    {title:"CS110 - Test 1", link:"https://drive.google.com/file/d/1dzWAtaOEzImLa6ea_ykb-5CsH67rZ3Vf/preview"},
-    {title:"2021 - Test 1 & 2", link:"https://drive.google.com/file/d/1a872g-waDBXXh6jr_lT9qXSH3LoRTt3C/preview"},
-    {title:"Sessional", link:"https://drive.google.com/file/d/1HOSw70xOP-7JXd3uKAL7kg1MyC-bPC5f/preview"}
-  ],
-  
-  LA110:[
-    {title:"2014 - Test 1", link:"https://drive.google.com/file/d/1QWuJ9kVmWQSsckwqvau_OlG2byic9m49/preview"},
-    {title:"2020 & 2023 online test - Test 1", link:"https://drive.google.com/file/d/1sjLV4qEYQ33eRl9eSQj99Pjly9j9ewRA/preview"},
-    {title:"2021 - Test 1", link:"https://drive.google.com/file/d/1TFw3eJhr9lOIA1vHK7uCi-uCBWgwVMHP/preview"}
-  ]
+// Firebase Config
+const firebaseConfig = {
+   apiKey: "AIzaSyCvL_D8wRVC3hS0mEvTt2J_D-LG7wFFpx0",
+  authDomain: "environmentalgpt-4974a.firebaseapp.com",
+  projectId: "environmentalgpt-4974a",
+  storageBucket: "environmentalgpt-4974a.firebasestorage.app",
+  messagingSenderId: "947094029861",
+  appId: "1:947094029861:web:ffa5c1ad4abff06d6e21cc",
+  measurementId: "G-36T3Y37DS4"
 };
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
-// OPEN COURSE
-function openCourse(course){
-  document.getElementById("coursesView").style.display="none";
-  document.getElementById("papersView").style.display="block";
-  document.getElementById("courseTitle").innerText=course+" Past Papers";
-  
-  const grid = document.getElementById("papersGrid");
-  grid.innerHTML="";
-  papers[course].forEach(p=>{
-    grid.innerHTML+=`
-      <div class="card" onclick="openPDF('${p.link}','${p.title}')">
-        <i class="fa-solid fa-file-pdf"></i>
-        <span>${p.title}</span>
-      </div>`;
-  });
-}
+// --- Variables ---
+let selectedSubject = null;
+const container = document.getElementById("mainContainer");
+const backBtn = document.querySelector(".back-btn");
+let papersData = []; // all past papers
 
-// BACK TO COURSES
-function goBack(){
-  document.getElementById("papersView").style.display="none";
-  document.getElementById("coursesView").style.display="block";
-}
-
-// OPEN PDF FULL SCREEN
-function openPDF(link, title){
-  const modal = document.getElementById("pdfModal");
-  modal.innerHTML = "";
-
-  // Controls
-  const controls = document.createElement("div");
-  controls.className = "pdf-controls";
-
-  const closeBtn = document.createElement("div");
-  closeBtn.className = "close";
-  closeBtn.innerHTML = "✕";
-  closeBtn.onclick = ()=>{ modal.style.display="none"; };
-
-  const downloadBtn = document.createElement("a");
-  downloadBtn.className = "download";
-  // Convert preview link to download link
-  const fileId = link.split("/d/")[1].split("/")[0];
-  downloadBtn.href = `https://drive.google.com/uc?export=download&id=${fileId}`;
-  downloadBtn.target = "_blank";
-  downloadBtn.innerHTML = "Download PDF";
-
-  controls.appendChild(closeBtn);
-  controls.appendChild(downloadBtn);
-
-  // PDF iframe
-  const iframe = document.createElement("iframe");
-  iframe.src = link;
-
-  modal.appendChild(controls);
-  modal.appendChild(iframe);
-  modal.style.display="flex";
-}
-
-/* Sidebar toggle */
-const sideMenu=document.getElementById('sideMenu');
-const hamburger=document.querySelector('.hamburger');
-
-hamburger.addEventListener('click', ()=>{ sideMenu.classList.toggle('open'); });
-
-document.addEventListener('click', (e)=>{
-  if(!sideMenu.contains(e.target) && !hamburger.contains(e.target)){
-    sideMenu.classList.remove('open');
-  }
+// --- Load Papers ---
+db.collection("pastpapers").get().then(snapshot => {
+    papersData = snapshot.docs.map(doc => doc.data());
+    showSubjects();
+}).catch(err => {
+    container.innerHTML = "<p style='color:red;'>Error fetching papers: " + err + "</p>";
 });
+
+// --- Show Subjects ---
+function showSubjects(){
+    container.innerHTML = "";
+    backBtn.style.display = "none";
+    const subjects = [...new Set(papersData.map(p => p.subject))];
+    subjects.forEach(sub => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.textContent = sub;
+        card.onclick = () => {
+            selectedSubject = sub;
+            showFiles();
+        };
+        container.appendChild(card);
+    });
+}
+
+// --- Show Files ---
+function showFiles(){
+    container.innerHTML = "";
+    backBtn.style.display = "inline-block";
+    const files = papersData.filter(p => p.subject === selectedSubject);
+    if(files.length === 0){
+        container.innerHTML = "<p>No papers found for this subject.</p>";
+        return;
+    }
+    files.forEach(f => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.textContent = f.title;
+        card.onclick = () => openViewer(f.link);
+        container.appendChild(card);
+    });
+}
+
+// --- Back button ---
+function goBack(){
+    if(selectedSubject){
+        selectedSubject = null;
+        showSubjects();
+    }
+}
+
+// --- Viewer ---
+function openViewer(link){
+    document.getElementById("viewer").style.display = "flex";
+    // Google Drive PDF preview
+    const idMatch = link.match(/[-\w]{25,}/);
+    const id = idMatch ? idMatch[0] : null;
+    if(id){
+        document.getElementById("paperFrame").src = `https://drive.google.com/file/d/${id}/preview`;
+    } else {
+        document.getElementById("paperFrame").src = link;
+    }
+}
+function closeViewer(){
+    document.getElementById("viewer").style.display = "none";
+    document.getElementById("paperFrame").src = "";
+}
 </script>
 
 </body>
