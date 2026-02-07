@@ -4,10 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Videos</title>
-
 <style>
 body { margin:0; font-family: Arial,sans-serif; background:#f0f8ff; }
-
 header {
     background:#0B3D91;
     color:white;
@@ -28,7 +26,6 @@ header h1 {
     margin-right:10px;
     user-select:none;
 }
-
 .container {
     max-width:800px;
     margin:20px auto;
@@ -36,7 +33,6 @@ header h1 {
     grid-template-columns:repeat(2,1fr);
     gap:16px;
 }
-
 .button {
     display:flex;
     align-items:center;
@@ -53,11 +49,7 @@ header h1 {
     box-shadow:0 3px 8px rgba(0,0,0,0.15);
     transition: transform 0.2s, background 0.2s;
 }
-.button:hover {
-    transform:translateY(-3px);
-    background:#e6f2ff;
-}
-
+.button:hover { transform:translateY(-3px); background:#e6f2ff; }
 .file-card {
     display:flex;
     align-items:center;
@@ -73,49 +65,42 @@ header h1 {
     transition: transform 0.2s, background 0.2s;
     grid-column:1 / -1;
 }
-.file-card:hover {
-    transform:translateY(-2px);
-    background:#e6f2ff;
-}
-
+.file-card:hover { transform:translateY(-2px); background:#e6f2ff; }
 #previewContainer {
-    width:100%;
-    height:100vh;
-    position:fixed;
-    top:0;
-    left:0;
-    background:white;
-    display:none;
-    z-index:1000;
+    width: 100%;
+    height: 50vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background: white;
+    display: none;
+    z-index: 1000;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }
-#previewContainer iframe {
-    width:100%;
-    height:100%;
-    border:none;
-}
+#previewContainer iframe { width: 100%; height: 100%; border: none; border-radius: inherit; }
 #closePreview {
-    position:absolute;
-    top:10px;
-    right:10px;
-    background:#f44336;
-    color:white;
-    border:none;
-    padding:8px 12px;
-    border-radius:6px;
-    cursor:pointer;
-    z-index:1001;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #f44336;
+    color: white;
+    border: none;
+    padding: 12px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    z-index: 1001;
 }
-#closePreview:hover {
-    background:#d32f2f;
-}
+#closePreview:hover { background:#d32f2f; }
 </style>
 </head>
-
 <body>
 
 <header>
     <span id="backBtn" class="back-symbol" style="display:none;">←</span>
-    <h1>Fincep Videos</h1>
+    <h1>Smart Videos</h1>
 </header>
 
 <div class="container" id="content"></div>
@@ -125,30 +110,17 @@ header h1 {
     <iframe id="previewIframe" allowfullscreen></iframe>
 </div>
 
-<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
 const firebaseConfig = {
-  apiKey: "AIzaSyB7e9k4jB4sVDpqK0wKdY1GK3wEI8fFck4",
-  authDomain: "smarthub-ff357.firebaseapp.com",
-  databaseURL: "https://smarthub-ff357-default-rtdb.firebaseio.com",
-  projectId: "smarthub-ff357",
-  storageBucket: "smarthub-ff357.firebasestorage.app",
-  messagingSenderId: "794427490398",
-  appId: "1:794427490398:web:3350b0927dfc62d30134cf",
-  measurementId: "G-7FZTLSB4LG"
+  apiKey:"AIzaSyBB347urZnfcgO5KKpSnWOVVSHXSYtEgGU",
+  authDomain:"smart-hub2.firebaseapp.com",
+  projectId:"smart-hub2"
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
-
-// --- Predefined subjects ---
-const subjectsList = ["BI210","CH210","PH210","MA210","EN211","ED211"];
-
-let selectedSubject = null;
-let selectedGrade = null;
-let selectedMainTopic = null;
 
 const content = document.getElementById("content");
 const backBtn = document.getElementById("backBtn");
@@ -156,186 +128,94 @@ const previewContainer = document.getElementById("previewContainer");
 const previewIframe = document.getElementById("previewIframe");
 const closePreview = document.getElementById("closePreview");
 
+let selectedTerm = null;
+let selectedCourse = null;
+
+// Close preview
 closePreview.onclick = () => {
     previewContainer.style.display = "none";
     previewIframe.src = "";
 };
 
+// Back button logic
 backBtn.onclick = () => {
-    if(selectedMainTopic){
-        selectedMainTopic = null;
-        loadVideos();
-    } else if(selectedGrade){
-        selectedGrade = null;
-        loadVideos();
-    } else {
-        selectedSubject = null;
-        loadSubjects();
+    if(selectedCourse){
+        selectedCourse = null;
+        loadContent();
+    } else if(selectedTerm){
+        selectedTerm = null;
+        loadContent();
     }
 };
 
-// ---- SUBJECTS ----
-function loadSubjects(){
+// Load hierarchical content
+function loadContent(){
     content.innerHTML = "";
-    backBtn.style.display = "none";
+    backBtn.style.display = (selectedTerm || selectedCourse) ? "inline-block" : "none";
 
-    subjectsList.forEach(subject=>{
-        const btn = document.createElement("button");
-        btn.className = "button";
-        btn.textContent = subject;
-        btn.onclick = () => {
-            selectedSubject = subject;
-            loadVideos();
-        };
-        content.appendChild(btn);
-    });
-}
+    db.collection("videos").get().then(snapshot=>{
+        const allData = snapshot.docs.map(d=>d.data());
 
-// ---- VIDEOS ----
-function loadVideos(){
-    content.innerHTML = "";
-    backBtn.style.display = "inline-block";
-
-    db.collection("videos")
-      .where("subject","==",selectedSubject)
-      .get()
-      .then(snapshot=>{
-        // If no videos uploaded yet
-        if(snapshot.empty && selectedSubject){
-            content.innerHTML = "<p>No videos uploaded for this subject yet.</p>";
+        if(!selectedTerm){
+            // Show terms
+            const terms = [...new Set(allData.map(d=>d.term))].sort((a,b)=>a-b);
+            if(terms.length===0){ content.innerHTML="<p>No videos uploaded yet.</p>"; return; }
+            terms.forEach(term=>{
+                const btn = document.createElement("button");
+                btn.className="button";
+                btn.textContent="Term "+term;
+                btn.onclick=()=> { selectedTerm=term; loadContent(); };
+                content.appendChild(btn);
+            });
             return;
         }
 
-        if(selectedSubject === "BIOLOGY"){
-            const grades = [...new Set(snapshot.docs.map(d => d.data().grade))].filter(g=>g).sort();
-            if(!selectedGrade){
-                grades.forEach(grade=>{
-                    const btn = document.createElement("button");
-                    btn.className = "button";
-                    btn.textContent = "Grade " + grade;
-                    btn.onclick = () => { selectedGrade = grade; loadVideos(); };
-                    content.appendChild(btn);
-                });
-                const allBtn = document.createElement("button");
-                allBtn.className = "button";
-                allBtn.textContent = "All Grades";
-                allBtn.onclick = () => { selectedGrade = ""; loadVideos(); };
-                content.appendChild(allBtn);
-                return;
-            }
-
-            const mainTopics = [...new Set(snapshot.docs
-                .filter(d=>selectedGrade==="" || d.data().grade==selectedGrade)
-                .map(d => d.data().mainTopic || ""))].filter(t=>t).sort();
-
-            if(!selectedMainTopic && mainTopics.length>0){
-                mainTopics.forEach(topic=>{
-                    const btn = document.createElement("button");
-                    btn.className = "button";
-                    btn.textContent = topic;
-                    btn.onclick = () => { selectedMainTopic = topic; loadVideos(); };
-                    content.appendChild(btn);
-                });
-                const allBtn = document.createElement("button");
-                allBtn.className = "button";
-                allBtn.textContent = "All Topics";
-                allBtn.onclick = () => { selectedMainTopic = ""; loadVideos(); };
-                content.appendChild(allBtn);
-                return;
-            }
-
-            // Show videos
-            let videos = snapshot.docs
-                .filter(d=>{
-                    const data = d.data();
-                    const gradeMatch = selectedGrade === "" || data.grade == selectedGrade;
-                    const topicMatch = selectedMainTopic === null || selectedMainTopic === "" || data.mainTopic == selectedMainTopic;
-                    return gradeMatch && topicMatch;
-                })
-                .map(doc=>{
-                    const data = doc.data();
-                    return { id: doc.id, title: data.title, link: data.link, order: data.order || 999 };
-                });
-
-            videos.sort((a,b)=>a.order - b.order);
-
-            if(videos.length === 0){
-                content.innerHTML = "<p>No videos found for this selection</p>";
-                return;
-            }
-
-            videos.forEach(video=>{
-                const card = document.createElement("div");
-                card.className = "file-card";
-                card.textContent = `${video.order !== 999 ? video.order + ". " : ""}${video.title}`;
-                card.onclick = () => openVideo(video.link);
-                content.appendChild(card);
+        if(!selectedCourse){
+            // Show courses for selected term
+            const courses = [...new Set(allData.filter(d=>d.term===selectedTerm).map(d=>d.course))].sort();
+            courses.forEach(course=>{
+                const btn = document.createElement("button");
+                btn.className="button";
+                btn.textContent=course;
+                btn.onclick=()=> { selectedCourse=course; loadContent(); };
+                content.appendChild(btn);
             });
-
-        } else {
-            // Other subjects
-            const mainTopics = [...new Set(snapshot.docs.map(d=>d.data().mainTopic || ""))].filter(t=>t).sort();
-
-            if(!selectedMainTopic && mainTopics.length>0){
-                mainTopics.forEach(topic=>{
-                    const btn = document.createElement("button");
-                    btn.className = "button";
-                    btn.textContent = topic;
-                    btn.onclick = () => { selectedMainTopic = topic; loadVideos(); };
-                    content.appendChild(btn);
-                });
-                const allBtn = document.createElement("button");
-                allBtn.className = "button";
-                allBtn.textContent = "All Videos";
-                allBtn.onclick = () => { selectedMainTopic = ""; loadVideos(); };
-                content.appendChild(allBtn);
-            } else {
-                let videos = snapshot.docs.map(doc=>{
-                    const data = doc.data();
-                    return { id: doc.id, title: data.title, link: data.link, order: data.order || 999, mainTopic: data.mainTopic || "" };
-                });
-
-                if(selectedMainTopic !== null){
-                    videos = videos.filter(v=>v.mainTopic === selectedMainTopic || selectedMainTopic === "");
-                }
-
-                videos.sort((a,b)=>a.order - b.order);
-
-                if(videos.length === 0){
-                    content.innerHTML = "<p>No videos found for this topic</p>";
-                    return;
-                }
-
-                videos.forEach(video=>{
-                    const card = document.createElement("div");
-                    card.className = "file-card";
-                    card.textContent = `${video.order !== 999 ? video.order + ". " : ""}${video.title}`;
-                    card.onclick = () => openVideo(video.link);
-                    content.appendChild(card);
-                });
-            }
+            return;
         }
+
+        // Show videos for selected term + course
+        let videos = allData.filter(d=>d.term===selectedTerm && d.course===selectedCourse);
+        videos.sort((a,b)=>(a.order||999)-(b.order||999));
+
+        if(videos.length===0){ content.innerHTML="<p>No videos found for this selection</p>"; return; }
+
+        videos.forEach(video=>{
+            const card = document.createElement("div");
+            card.className="file-card";
+            card.textContent = `${video.order!==undefined && video.order!==999 ? video.order+". " : ""}${video.title}`;
+            card.onclick = ()=>openVideo(video.link);
+            content.appendChild(card);
+        });
     });
 }
 
-// ---- Google Drive preview ----
+// Open video in half-screen
 function openVideo(link){
     const id = extractDriveId(link);
     if(id){
         previewIframe.src = `https://drive.google.com/file/d/${id}/preview`;
-        previewContainer.style.display = "block";
-    } else {
-        alert("Invalid video link");
-    }
+        previewContainer.style.display="block";
+    } else alert("Invalid video link");
 }
 
+// Extract Google Drive ID
 function extractDriveId(url){
     const match = url.match(/[-\w]{25,}/);
     return match ? match[0] : "";
 }
 
 // INIT
-loadSubjects();
+loadContent();
 </script>
 
 </body>
