@@ -4,10 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Documents</title>
-
 <style>
 body { margin:0; font-family: Arial,sans-serif; background:#f0f8ff; }
 
+/* Header */
 header {
     background:#0B3D91;
     color:white;
@@ -29,6 +29,7 @@ header h1 {
     user-select:none;
 }
 
+/* Container for cards */
 .container {
     max-width:800px;
     margin:20px auto;
@@ -36,7 +37,6 @@ header h1 {
     grid-template-columns:repeat(2,1fr);
     gap:16px;
 }
-
 .button {
     display:flex;
     align-items:center;
@@ -53,76 +53,51 @@ header h1 {
     box-shadow:0 3px 8px rgba(0,0,0,0.15);
     transition: transform 0.2s, background 0.2s;
 }
-.button:hover {
-    transform:translateY(-3px);
-    background:#e6f2ff;
-}
+.button:hover { transform:translateY(-3px); background:#e6f2ff; }
 
-.file-card {
-    display:flex;
-    align-items:center;
-    background:white;
-    color:#0B3D91;
-    padding:15px 20px;
-    margin:6px 0;
-    border-radius:12px;
-    cursor:pointer;
-    font-size:16px;
-    font-weight:bold;
-    box-shadow:0 3px 8px rgba(0,0,0,0.15);
-    transition: transform 0.2s, background 0.2s;
-    grid-column:1 / -1;
-}
-.file-card:hover {
-    transform:translateY(-2px);
-    background:#e6f2ff;
-}
-
-#previewContainer {
-    width:100%;
-    height:100vh;
-    position:fixed;
-    top:0;
-    left:0;
-    background:white;
+/* Fullscreen document viewer */
+#docViewer {
     display:none;
+    position:fixed;
+    top:0; left:0;
+    width:100%;
+    height:100%;
+    background:white;
     z-index:1000;
 }
-#previewContainer iframe {
+#docViewer iframe {
     width:100%;
     height:100%;
     border:none;
 }
-#closePreview {
+#closeDoc {
     position:absolute;
     top:10px;
     right:10px;
     background:#f44336;
     color:white;
     border:none;
-    padding:8px 12px;
-    border-radius:6px;
+    padding:15px 17px;
+    font-weight:bold;
+    border-radius:10px;
     cursor:pointer;
     z-index:1001;
 }
-#closePreview:hover {
-    background:#d32f2f;
-}
+#closeDoc:hover { background:#d32f2f; }
 </style>
 </head>
-
 <body>
 
 <header>
     <span id="backBtn" class="back-symbol" style="display:none;">←</span>
-    <h1>Fincep</h1>
+    <h1>Documents</h1>
 </header>
 
 <div class="container" id="content"></div>
 
-<div id="previewContainer">
-    <button id="closePreview">Close ✖</button>
-    <iframe id="previewIframe"></iframe>
+<div id="docViewer">
+    <button id="closeDoc">Close ✖</button>
+    <iframe id="docIframe"></iframe>
 </div>
 
 <!-- Firebase -->
@@ -131,248 +106,110 @@ header h1 {
 
 <script>
 const firebaseConfig = {
- apiKey: "AIzaSyB7e9k4jB4sVDpqK0wKdY1GK3wEI8fFck4",
-  authDomain: "smarthub-ff357.firebaseapp.com",
-  databaseURL: "https://smarthub-ff357-default-rtdb.firebaseio.com",
-  projectId: "smarthub-ff357",
-  storageBucket: "smarthub-ff357.firebasestorage.app",
-  messagingSenderId: "794427490398",
-  appId: "1:794427490398:web:3350b0927dfc62d30134cf",
-  measurementId: "G-7FZTLSB4LG"
+  apiKey:"AIzaSyBB347urZnfcgO5KKpSnWOVVSHXSYtEgGU",
+  authDomain:"smart-hub2.firebaseapp.com",
+  projectId:"smart-hub2"
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// --- Predefined subjects for dropdown ---
-const subjectsList = ["BI210","CH210","PH210","MA210","EN211","ED211"];
-
-let selectedSubject = null;
-let selectedGrade = null;
-let selectedMainTopic = null;
+let selectedTerm = null;
+let selectedCourse = null;
 
 const content = document.getElementById("content");
 const backBtn = document.getElementById("backBtn");
-const previewContainer = document.getElementById("previewContainer");
-const previewIframe = document.getElementById("previewIframe");
-const closePreview = document.getElementById("closePreview");
+const docViewer = document.getElementById("docViewer");
+const docIframe = document.getElementById("docIframe");
+const closeDoc = document.getElementById("closeDoc");
 
-closePreview.onclick = () => {
-    previewContainer.style.display = "none";
-    previewIframe.src = "";
+// Close document
+closeDoc.onclick = () => {
+    docViewer.style.display = "none";
+    docIframe.src = "";
 };
 
+// Back button
 backBtn.onclick = () => {
-    if(selectedMainTopic){
-        selectedMainTopic = null;
-        loadFiles();
-    } else if(selectedGrade){
-        selectedGrade = null;
-        loadFiles();
-    } else {
-        selectedSubject = null;
-        loadSubjects();
+    if(selectedCourse){
+        selectedCourse = null;
+        loadDocuments();
+    } else if(selectedTerm){
+        selectedTerm = null;
+        loadTerms();
     }
 };
 
-// ---- SUBJECTS ----
-function loadSubjects(){
+// Load all terms
+function loadTerms(){
     content.innerHTML = "";
     backBtn.style.display = "none";
 
-    subjectsList.forEach(subject=>{
-        const btn = document.createElement("button");
-        btn.className = "button";
-        btn.textContent = subject;
-        btn.onclick = () => {
-            selectedSubject = subject;
-            loadFiles();
-        };
-        content.appendChild(btn);
+    db.collection("documents").get().then(snapshot=>{
+        const terms = [...new Set(snapshot.docs.map(d => d.data().term))].sort((a,b)=>a-b);
+        if(terms.length===0){ content.innerHTML="<p>No documents uploaded.</p>"; return; }
+
+        terms.forEach(term=>{
+            const btn = document.createElement("button");
+            btn.className="button";
+            btn.textContent="Term "+term;
+            btn.onclick = () => { selectedTerm = term; loadDocuments(); };
+            content.appendChild(btn);
+        });
     });
 }
 
-// ---- FILES ----
-function loadFiles(){
+// Load courses or documents
+function loadDocuments(){
     content.innerHTML = "";
     backBtn.style.display = "inline-block";
 
     db.collection("documents")
-      .where("subject","==",selectedSubject)
+      .where("term","==",selectedTerm)
       .get()
       .then(snapshot=>{
-        if(snapshot.empty){
-            content.innerHTML = "<p>No documents found for this subject</p>";
-            return;
-        }
+        if(snapshot.empty){ content.innerHTML="<p>No documents found for this term.</p>"; return; }
 
-        if(selectedSubject === "BIOLOGY"){
-            // --- Biology: Grades → Main Topics → Files ---
-            const grades = [...new Set(snapshot.docs.map(d => d.data().grade))].filter(g=>g).sort();
-            if(!selectedGrade){
-                grades.forEach(grade=>{
-                    const btn = document.createElement("button");
-                    btn.className = "button";
-                    btn.textContent = "Grade " + grade;
-                    btn.onclick = () => {
-                        selectedGrade = grade;
-                        loadFiles();
-                    };
-                    content.appendChild(btn);
-                });
-
-                const allBtn = document.createElement("button");
-                allBtn.className = "button";
-                allBtn.textContent = "All Grades";
-                allBtn.onclick = () => {
-                    selectedGrade = "";
-                    loadFiles();
-                };
-                content.appendChild(allBtn);
-                return;
-            }
-
-            const mainTopics = [...new Set(snapshot.docs
-                .filter(d=>selectedGrade==="" || d.data().grade==selectedGrade)
-                .map(d => d.data().mainTopic || ""))].filter(t=>t).sort();
-
-            if(!selectedMainTopic && mainTopics.length>0){
-                mainTopics.forEach(topic=>{
-                    const btn = document.createElement("button");
-                    btn.className = "button";
-                    btn.textContent = topic;
-                    btn.onclick = () => {
-                        selectedMainTopic = topic;
-                        loadFiles();
-                    };
-                    content.appendChild(btn);
-                });
-
-                const allBtn = document.createElement("button");
-                allBtn.className = "button";
-                allBtn.textContent = "All Topics";
-                allBtn.onclick = () => {
-                    selectedMainTopic = "";
-                    loadFiles();
-                };
-                content.appendChild(allBtn);
-                return;
-            }
-
-            let files = snapshot.docs
-                .filter(d=>{
-                    const data = d.data();
-                    const gradeMatch = selectedGrade === "" || data.grade == selectedGrade;
-                    const topicMatch = selectedMainTopic === null || selectedMainTopic === "" || data.mainTopic == selectedMainTopic;
-                    return gradeMatch && topicMatch;
-                })
-                .map(doc=>{
-                    const data = doc.data();
-                    return {
-                        id: doc.id,
-                        title: data.title,
-                        link: data.link,
-                        order: data.order || 999
-                    };
-                });
-
-            files.sort((a,b)=>a.order - b.order);
-
-            if(files.length === 0){
-                content.innerHTML = "<p>No documents found for this selection</p>";
-                return;
-            }
-
-            files.forEach(file=>{
-                const card = document.createElement("div");
-                card.className = "file-card";
-                card.textContent = `${file.order !== 999 ? file.order + ". " : ""}${file.title}`;
-                card.onclick = () => {
-                    const id = extractDriveId(file.link);
-                    if(id){
-                        previewIframe.src = `https://drive.google.com/file/d/${id}/preview`;
-                        previewContainer.style.display = "block";
-                    } else {
-                        alert("Invalid file link");
-                    }
-                };
-                content.appendChild(card);
+        if(!selectedCourse){
+            // Show courses
+            const courses = [...new Set(snapshot.docs.map(d=>d.data().course))].sort();
+            courses.forEach(course=>{
+                const btn = document.createElement("button");
+                btn.className="button";
+                btn.textContent=course;
+                btn.onclick=()=>{ selectedCourse = course; loadDocuments(); };
+                content.appendChild(btn);
             });
-
         } else {
-            // --- Other subjects ---
-            const mainTopics = [...new Set(snapshot.docs.map(d => d.data().mainTopic || ""))].filter(t=>t).sort();
-
-            if(!selectedMainTopic && mainTopics.length>0){
-                mainTopics.forEach(topic=>{
-                    const btn = document.createElement("button");
-                    btn.className = "button";
-                    btn.textContent = topic;
-                    btn.onclick = () => {
-                        selectedMainTopic = topic;
-                        loadFiles();
-                    };
-                    content.appendChild(btn);
+            // Show documents for this course
+            const docs = snapshot.docs
+                .filter(d=>d.data().course===selectedCourse)
+                .sort((a,b)=>{
+                    const oa = a.data().order||0, ob=b.data().order||0;
+                    return oa-ob;
                 });
 
-                const allBtn = document.createElement("button");
-                allBtn.className = "button";
-                allBtn.textContent = "All Documents";
-                allBtn.onclick = () => {
-                    selectedMainTopic = "";
-                    loadFiles();
-                };
-                content.appendChild(allBtn);
-            } else {
-                let files = snapshot.docs.map(doc=>{
-                    const data = doc.data();
-                    return {
-                        id: doc.id,
-                        title: data.title,
-                        link: data.link,
-                        order: data.order || 999,
-                        mainTopic: data.mainTopic || ""
-                    };
-                });
+            if(docs.length===0){ content.innerHTML="<p>No documents found for this course.</p>"; return; }
 
-                if(selectedMainTopic !== null){
-                    files = files.filter(f=>f.mainTopic === selectedMainTopic || selectedMainTopic === "");
-                }
-
-                files.sort((a,b)=>a.order - b.order);
-
-                if(files.length === 0){
-                    content.innerHTML = "<p>No documents found for this topic</p>";
-                    return;
-                }
-
-                files.forEach(file=>{
-                    const card = document.createElement("div");
-                    card.className = "file-card";
-                    card.textContent = `${file.order !== 999 ? file.order + ". " : ""}${file.title}`;
-                    card.onclick = () => {
-                        const id = extractDriveId(file.link);
-                        if(id){
-                            previewIframe.src = `https://drive.google.com/file/d/${id}/preview`;
-                            previewContainer.style.display = "block";
-                        } else {
-                            alert("Invalid file link");
-                        }
-                    };
-                    content.appendChild(card);
-                });
-            }
+            docs.forEach(d=>{
+                const data = d.data();
+                const btn = document.createElement("button");
+                btn.className="button";
+                btn.textContent = data.order ? `${data.order}. ${data.title}` : data.title;
+                btn.onclick = () => openDocument(data.link);
+                content.appendChild(btn);
+            });
         }
     });
 }
 
-// ---- Google Drive ID ----
-function extractDriveId(url){
-    const match = url.match(/[-\w]{25,}/);
-    return match ? match[0] : "";
+// Open document full-screen
+function openDocument(link){
+    docIframe.src = link;
+    docViewer.style.display="block";
 }
 
 // INIT
-loadSubjects();
+loadTerms();
 </script>
 
 </body>
