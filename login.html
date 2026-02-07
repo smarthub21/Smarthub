@@ -4,38 +4,83 @@
 <meta charset="UTF-8">
 <title>Login | Learn with GPT</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <style>
-body { font-family: Arial,sans-serif; background:#e0f2ff; display:flex; justify-content:center; align-items:center; height:100vh; margin:0; }
-.container { background:white; padding:30px 40px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.2); width:100%; max-width:400px; }
-h2 { text-align:center; color:#0B3D91; margin-bottom:20px; }
-input { width:100%; padding:10px; margin:10px 0; border-radius:6px; border:1px solid #ccc; font-size:16px; }
-button { width:100%; padding:12px; background:#0B3D91; color:white; font-size:16px; border:none; border-radius:6px; cursor:pointer; margin-top:10px; }
-button:hover { background:#094080; }
-.message { text-align:center; margin-top:10px; color:red; }
+body {
+  font-family: Arial, sans-serif;
+  background:#e0f2ff;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  margin:0;
+}
+.container {
+  background:white;
+  padding:30px 40px;
+  border-radius:12px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.2);
+  width:100%;
+  max-width:400px;
+}
+h2 {
+  text-align:center;
+  color:#0B3D91;
+}
+input {
+  width:100%;
+  padding:10px;
+  margin:10px 0;
+  border-radius:6px;
+  border:1px solid #ccc;
+  font-size:16px;
+}
+button {
+  width:100%;
+  padding:12px;
+  background:#0B3D91;
+  color:white;
+  font-size:16px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+}
+button:hover {
+  background:#094080;
+}
+.message {
+  text-align:center;
+  margin-top:10px;
+  color:red;
+}
 </style>
 </head>
 
 <body>
 
 <div class="container">
-    <h2>Login</h2>
-    <form id="loginForm">
-        <input type="email" id="email" placeholder="Email" required>
-        <input type="password" id="password" placeholder="Password" required>
-        <button type="submit">Login</button>
-        <div class="message" id="message"></div>
-    </form>
-    <p style="text-align:center; margin-top:15px;">Don't have an account? <a href="signup.html">Sign Up</a></p>
+  <h2>Login</h2>
+
+  <form id="loginForm">
+    <input type="email" id="email" placeholder="Email" required>
+    <input type="password" id="password" placeholder="Password" required>
+    <button type="submit">Login</button>
+    <div class="message" id="message"></div>
+  </form>
+
+  <p style="text-align:center;margin-top:15px;">
+    Don't have an account? <a href="signup.html">Sign Up</a>
+  </p>
 </div>
 
 <script type="module">
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, Timestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 const firebaseConfig = {
-    
-apiKey: "AIzaSyB7e9k4jB4sVDpqK0wKdY1GK3wEI8fFck4",
+  apiKey: "AIzaSyB7e9k4jB4sVDpqK0wKdY1GK3wEI8fFck4",
   authDomain: "smarthub-ff357.firebaseapp.com",
   databaseURL: "https://smarthub-ff357-default-rtdb.firebaseio.com",
   projectId: "smarthub-ff357",
@@ -43,7 +88,8 @@ apiKey: "AIzaSyB7e9k4jB4sVDpqK0wKdY1GK3wEI8fFck4",
   messagingSenderId: "794427490398",
   appId: "1:794427490398:web:3350b0927dfc62d30134cf",
   measurementId: "G-7FZTLSB4LG"
-),
+};
+
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -51,34 +97,39 @@ const db = getFirestore(app);
 const loginForm = document.getElementById("loginForm");
 const messageEl = document.getElementById("message");
 
-loginForm.addEventListener("submit", async e=>{
-    e.preventDefault();
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value;
+loginForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
 
-    messageEl.textContent = "";
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
 
-    try {
-        const userCredential = await signInWithEmailAndPassword(auth,email,password);
-        const user = userCredential.user;
+  messageEl.textContent = "";
 
-        // Check countdown
-        const snap = await getDoc(doc(db,"users",user.uid));
-        if(!snap.exists()) throw new Error("User data not found");
-        const countdownEnd = snap.data().countdownEnd.toDate();
-        if(countdownEnd < new Date()) {
-            messageEl.textContent = "Your access has expired!";
-            await auth.signOut();
-            return;
-        }
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
 
-        // Redirect to dashboard
-        window.location.href = "dashboard.html";
+    const userDoc = await getDoc(doc(db, "users", user.uid));
 
-    } catch(err) {
-        messageEl.textContent = err.message;
+    if (!userDoc.exists()) {
+      throw new Error("User data not found");
     }
+
+    const countdownEnd = userDoc.data().countdownEnd.toDate();
+
+    if (countdownEnd < new Date()) {
+      messageEl.textContent = "Your access has expired!";
+      await signOut(auth);
+      return;
+    }
+
+    window.location.href = "dashboard.html";
+
+  } catch (error) {
+    messageEl.textContent = error.message;
+  }
 });
+
 </script>
 
 </body>
