@@ -5,7 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Documents</title>
 <style>
-body { margin:0; font-family: Arial,sans-serif; background:#f0f8ff; }
+body { 
+    margin:0; 
+    font-family: Arial,sans-serif; 
+    background:#f0f8ff; 
+}
 
 /* Header */
 header {
@@ -36,6 +40,7 @@ header h1 {
     display:grid;
     grid-template-columns:repeat(2,1fr);
     gap:16px;
+    padding: 0 12px;
 }
 .button {
     display:flex;
@@ -53,13 +58,17 @@ header h1 {
     box-shadow:0 3px 8px rgba(0,0,0,0.15);
     transition: transform 0.2s, background 0.2s;
 }
-.button:hover { transform:translateY(-3px); background:#e6f2ff; }
+.button:hover { 
+    transform:translateY(-3px); 
+    background:#e6f2ff; 
+}
 
 /* Fullscreen document viewer */
 #docViewer {
     display:none;
     position:fixed;
-    top:0; left:0;
+    top:0; 
+    left:0;
     width:100%;
     height:100%;
     background:white;
@@ -70,20 +79,62 @@ header h1 {
     height:100%;
     border:none;
 }
-#closeDoc {
+
+/* Viewer buttons */
+#viewerActions {
     position:absolute;
     top:10px;
     right:10px;
-    background:#f44336;
-    color:white;
+    display:flex;
+    gap:10px;
+    z-index:1001;
+}
+
+.viewer-btn {
     border:none;
-    padding:15px 17px;
+    padding:14px 16px;
     font-weight:bold;
     border-radius:10px;
     cursor:pointer;
-    z-index:1001;
+    color:white;
+    font-size:14px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.2);
 }
-#closeDoc:hover { background:#d32f2f; }
+
+#downloadDoc {
+    background:#0B3D91;
+}
+#downloadDoc:hover {
+    background:#082f72;
+}
+
+#closeDoc {
+    background:#f44336;
+}
+#closeDoc:hover { 
+    background:#d32f2f; 
+}
+
+@media (max-width: 600px) {
+    .container {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .button {
+        padding: 16px;
+        font-size: 14px;
+    }
+
+    header h1 {
+        font-size: 1.3em;
+    }
+
+    .viewer-btn {
+        padding:12px 14px;
+        font-size:13px;
+    }
+}
 </style>
 </head>
 <body>
@@ -96,7 +147,10 @@ header h1 {
 <div class="container" id="content"></div>
 
 <div id="docViewer">
-    <button id="closeDoc">Close ✖</button>
+    <div id="viewerActions">
+        <button id="downloadDoc" class="viewer-btn">Download ⬇</button>
+        <button id="closeDoc" class="viewer-btn">Close ✖</button>
+    </div>
     <iframe id="docIframe"></iframe>
 </div>
 
@@ -115,21 +169,46 @@ const db = firebase.firestore();
 
 let selectedTerm = null;
 let selectedCourse = null;
+let currentDocLink = "";
 
 const content = document.getElementById("content");
 const backBtn = document.getElementById("backBtn");
 const docViewer = document.getElementById("docViewer");
 const docIframe = document.getElementById("docIframe");
 const closeDoc = document.getElementById("closeDoc");
+const downloadDoc = document.getElementById("downloadDoc");
 
 // Close document
 closeDoc.onclick = () => {
     docViewer.style.display = "none";
     docIframe.src = "";
+    currentDocLink = "";
+};
+
+// Download document
+downloadDoc.onclick = () => {
+    if (!currentDocLink) return;
+
+    // Try direct download
+    const a = document.createElement("a");
+    a.href = currentDocLink;
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    a.download = "";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
 };
 
 // Back button
 backBtn.onclick = () => {
+    if (docViewer.style.display === "block") {
+        docViewer.style.display = "none";
+        docIframe.src = "";
+        currentDocLink = "";
+        return;
+    }
+
     if(selectedCourse){
         selectedCourse = null;
         loadDocuments();
@@ -146,15 +225,25 @@ function loadTerms(){
 
     db.collection("documents").get().then(snapshot=>{
         const terms = [...new Set(snapshot.docs.map(d => d.data().term))].sort((a,b)=>a-b);
-        if(terms.length===0){ content.innerHTML="<p>No documents uploaded.</p>"; return; }
+        if(terms.length===0){ 
+            content.innerHTML="<p style='padding:20px;text-align:center;'>No documents uploaded.</p>"; 
+            return; 
+        }
 
         terms.forEach(term=>{
             const btn = document.createElement("button");
             btn.className="button";
             btn.textContent="Term "+term;
-            btn.onclick = () => { selectedTerm = term; loadDocuments(); };
+            btn.onclick = () => { 
+                selectedTerm = term; 
+                selectedCourse = null;
+                loadDocuments(); 
+            };
             content.appendChild(btn);
         });
+    }).catch(error => {
+        console.error("Error loading terms:", error);
+        content.innerHTML="<p style='padding:20px;text-align:center;color:red;'>Failed to load documents.</p>";
     });
 }
 
@@ -167,16 +256,28 @@ function loadDocuments(){
       .where("term","==",selectedTerm)
       .get()
       .then(snapshot=>{
-        if(snapshot.empty){ content.innerHTML="<p>No documents found for this term.</p>"; return; }
+        if(snapshot.empty){ 
+            content.innerHTML="<p style='padding:20px;text-align:center;'>No documents found for this term.</p>"; 
+            return; 
+        }
 
         if(!selectedCourse){
             // Show courses
             const courses = [...new Set(snapshot.docs.map(d=>d.data().course))].sort();
+
+            if(courses.length === 0){
+                content.innerHTML="<p style='padding:20px;text-align:center;'>No courses found.</p>";
+                return;
+            }
+
             courses.forEach(course=>{
                 const btn = document.createElement("button");
                 btn.className="button";
                 btn.textContent=course;
-                btn.onclick=()=>{ selectedCourse = course; loadDocuments(); };
+                btn.onclick=()=>{ 
+                    selectedCourse = course; 
+                    loadDocuments(); 
+                };
                 content.appendChild(btn);
             });
         } else {
@@ -188,7 +289,10 @@ function loadDocuments(){
                     return oa-ob;
                 });
 
-            if(docs.length===0){ content.innerHTML="<p>No documents found for this course.</p>"; return; }
+            if(docs.length===0){ 
+                content.innerHTML="<p style='padding:20px;text-align:center;'>No documents found for this course.</p>"; 
+                return; 
+            }
 
             docs.forEach(d=>{
                 const data = d.data();
@@ -199,11 +303,15 @@ function loadDocuments(){
                 content.appendChild(btn);
             });
         }
+    }).catch(error => {
+        console.error("Error loading documents:", error);
+        content.innerHTML="<p style='padding:20px;text-align:center;color:red;'>Failed to load documents.</p>";
     });
 }
 
 // Open document full-screen
 function openDocument(link){
+    currentDocLink = link;
     docIframe.src = link;
     docViewer.style.display="block";
 }
